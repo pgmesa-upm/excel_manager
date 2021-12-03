@@ -1,0 +1,324 @@
+# pylint: disable=C0103,C0111,W0614,W0401,C0200,C0325
+from tkinter import *
+from tkinter import ttk
+import tkinter.messagebox as tkMessageBox
+import tkinter.filedialog as tkFileDialog
+import tkinter.font as tkFont
+import csv
+
+from .encryption import rsa_encrypt, rsa_decrypt
+from .protected_data import get_encrypted, hash_and_save_encrypted
+
+# codigo base: https://github.com/ssebs/csveditor
+
+##
+#   TODO: Add + / - buttons to create/remove rows & coloumns
+#   TODO: Add resizing of cells
+##
+
+class CSVEditor(Frame):
+
+    cellList = []
+    currentCells = []
+    currentCell = None
+
+    def __init__(self, master=None, font_size=10, private_key=None, public_key=None, sensitive_fields:list=None):
+        Frame.__init__(self, master)
+        self.private_key = private_key
+        self.public_key = public_key
+        self.sensitive_fields = sensitive_fields
+        self.current_path_file = None
+        self.current_title = None
+        self.font_size = font_size
+        #self.grid()
+        #self.createDefaultWidgets()
+        
+
+    def focus_tab(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+
+    def focus_sh_tab(self, event):
+        event.widget.tk_focusPrev().focus()
+        return "break"
+
+    def focus_right(self, event):
+        #event.widget.tk_focusNext().focus()
+        widget = event.widget.focus_get()
+
+        for i in range(len(self.currentCells)):
+            for j in range(len(self.currentCells[0])):
+                if widget == self.currentCells[i][j]:
+                    if(j >= len(self.currentCells[0]) - 1 ):
+                        j = -1    
+                    self.currentCells[i][j+1].focus()
+        return "break"
+
+    def focus_left(self, event):
+        #event.widget.tk_focusNext().focus()
+        widget = event.widget.focus_get()
+
+        for i in range(len(self.currentCells)):
+            for j in range(len(self.currentCells[0])):
+                if widget == self.currentCells[i][j]:
+                    if(j == 0):
+                        j = len(self.currentCells[0])    
+                    self.currentCells[i][j-1].focus()
+        return "break"
+
+    def focus_up(self, event):
+        #event.widget.tk_focusNext().focus()
+        widget = event.widget.focus_get()
+
+        for i in range(len(self.currentCells)):
+            for j in range(len(self.currentCells[0])):
+                if widget == self.currentCells[i][j]:
+                    if(i < 0):
+                        i = len(self.currentCells)
+                    self.currentCells[i-1][j].focus()
+        return "break"
+
+    def focus_down(self, event):
+        #event.widget.tk_focusNext().focus()
+        widget = event.widget.focus_get()
+
+        for i in range(len(self.currentCells)):
+            for j in range(len(self.currentCells[0])):
+                if widget == self.currentCells[i][j]:
+                    if( i >= len(self.currentCells) - 1):
+                        i = -1
+                    self.currentCells[i+1][j].focus()
+        return "break"
+
+    def selectall(self, event):
+        event.widget.tag_add("sel", "1.0", "end")
+        event.widget.mark_set(INSERT, "1.0")
+        event.widget.see(INSERT)
+        return "break"
+
+    def saveFile(self, event):
+        self.saveCells()
+
+    # TODO: Create bind for arrow keys and enter
+
+    def add_row(self):
+        # TODO: Acabar esta funcion (incompleta)
+        # -> sacar w y h de las cldas que se estan mostrando
+        # -> configurar celdas nuevas con los eventos de teclado, fuente etc... (config_cels())
+        # -> añadirlas correctamente a currentCells
+        # first_cell = self.currentCells[0][0] 
+        # w, h = first_cell.winfo_width, first_cell.winfo_height
+        # new_row = [Text(self, width=w, height=h).insert(END, "")]*len(self.currentCells[0])
+        # self.currentCells.insert(len(self.currentCells), new_row)
+        ...
+        
+    def config_cell(self, cell):
+        ...
+    
+    def createDefaultWidgets(self):
+        w, h = 7, 1
+        self.sizeX = 4
+        self.sizeY = 6
+        self.defaultCells = []
+        for i in range(self.sizeY):
+            self.defaultCells.append([])
+            for j in range(self.sizeX):
+                self.defaultCells[i].append([])
+
+        for i in range(self.sizeY):
+            for j in range(self.sizeX):
+                tmp = Entry(self,)
+                tmp.bind("<Tab>", self.focus_tab)
+                tmp.bind("<Shift-Tab>", self.focus_sh_tab)
+                tmp.bind("<Return>", self.focus_down)
+                tmp.bind("<Shift-Return>", self.focus_up)
+                tmp.bind("<Right>", self.focus_right)
+                tmp.bind("<Left>", self.focus_left)
+                tmp.bind("<Up>", self.focus_up)
+                tmp.bind("<Down>", self.focus_down)
+                tmp.bind("<Control-a>", self.selectall)
+                tmp.bind("<Control-s>", self.saveFile)
+                #TODO: Add resize check on column when changing focus
+                tmp.insert(END, "")
+                tmp.grid(padx=0, pady=0, column=j, row=i)
+                
+                tmp.config(font=("Helvetica", self.font_size))
+
+                self.defaultCells[i][j] = tmp
+                self.cellList.append(tmp)
+
+        self.defaultCells[0][0].focus_force()
+        self.currentCells = self.defaultCells
+        self.currentCell = self.currentCells[0][0]
+
+        # TODO: Add buttons to create new rows/columns
+
+    def newCells(self):
+        self.removeCells()
+        self.createDefaultWidgets()
+
+    def removeCells(self):
+        while(len(self.cellList) > 0):
+            for cell in self.cellList:
+                # print str(i) + str(j)
+                cell.destroy()
+                self.cellList.remove(cell)
+        self.currentCells = []
+        self.currentCell = None
+
+    def loadCells(self, filepath=None, only_headers=False, title=None):
+        if filepath is None:
+            filepath = tkFileDialog.askopenfilename(initialdir=".", title="Select file",
+                                                filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
+        self.current_path_file = filepath
+        if title is not None:
+            self.master.title(title)
+            self.current_title = title
+        ary = []
+        col = -1
+        rows = []
+
+        # get array size & get contents of rows
+        with open(filepath, "r") as csvfile:
+            rd_generator = csv.reader(csvfile, delimiter=",", quotechar='"')
+            rd = []
+            for row in rd_generator: rd.append(row)
+            num_rows = len(rd)
+            self.master.title(self.current_title + " -> Size = " + str(num_rows-1))
+            if self.private_key is None:
+                headers = rd[0]; col = len(headers)
+                rows.append(headers)
+                for _ in range(6):
+                    ary.append([])
+                    rows.append([""]*col)
+            else:
+                for row in rd:
+                    ary.append([])
+                    decrypted = False; posible_row = []
+                    for val in row:
+                        if self.private_key is not None:
+                            ciphertext = get_encrypted(val.encode()); 
+                            if ciphertext is not None:
+                                val = rsa_decrypt(ciphertext, self.private_key).decode()
+                                decrypted = True
+                        posible_row.append(val)
+                    if decrypted: row = posible_row
+                    col = len(row)
+                    rows.append(row)
+        
+        # create the array
+        for i in range(len(ary)):
+            for j in range(col):
+                ary[i].append([])
+
+        # fill the array
+        for i in range(len(ary)):
+            for j in range(col):
+                # print rows[i][j]
+                ary[i][j] = rows[i][j]
+
+        self.removeCells()
+
+        # get the max width of the cells
+        mx = 0
+        for i in range(len(ary)):
+            for j in range(len(ary[0])):
+                if(len(ary[i][j]) >= mx):
+                    mx = len(ary[i][j])
+        w = mx
+        if w < 20: w = 20
+
+        loadCells = []
+        for i in range(len(ary)):
+            loadCells.append([])
+            for j in range(len(ary[0])):
+                loadCells[i].append([])
+                
+
+        headers = []
+        # create the new cells
+        for i in range(len(ary)):
+            for j in range(len(ary[0])):
+                tmp = Text(self, width=w, height=1)
+                tmp.bind("<Tab>", self.focus_tab)
+                tmp.bind("<Shift-Tab>", self.focus_sh_tab)
+                tmp.bind("<Return>", self.focus_down)
+                tmp.bind("<Shift-Return>", self.focus_up)
+                tmp.bind("<Control-Right>", self.focus_right)
+                tmp.bind("<Control-Left>", self.focus_left)
+                tmp.bind("<Up>", self.focus_up)
+                tmp.bind("<Down>", self.focus_down)
+                tmp.bind("<Control-a>", self.selectall)
+                tmp.bind("<Control-s>", self.saveFile)
+                # Vemos si solo ponemos las cabeceras
+                val = ary[i][j]
+                
+                tmp.insert(END, val)
+                    
+                if(i == 0):
+                    tmp.config(font=("Helvetica", self.font_size, tkFont.BOLD))
+                    tmp.config(relief=FLAT, bg=self.master.cget('bg'))
+                else:
+                    tmp.config(font=("Helvetica", self.font_size))
+
+                loadCells[i][j] = tmp
+                tmp.focus_force()
+                self.cellList.append(tmp)
+
+                tmp.grid(padx=0, pady=0, column=j, row=i)
+            
+        self.currentCells = loadCells
+        self.currentCell = self.currentCells[0][0]
+
+
+    def saveCells(self):
+        filepath = self.current_path_file
+        if filepath is None:
+            filepath = tkFileDialog.asksaveasfilename(initialdir=".", title="Save File", filetypes=(
+                ("csv files", "*.csv"), ("all files", "*.*")), defaultextension=".csv")
+            self.current_path_file = filepath
+
+        mode = 'a'
+        if self.private_key is not None:
+            mode = 'w'
+        
+        self.master.title("Encryptando y Guardando (puede tardar)...")
+        headers = []
+        vals = []
+        for i in range(len(self.currentCells)):
+            for j in range(len(self.currentCells[0])):        
+                val = self.currentCells[i][j].get(1.0, END).strip()
+                if i == 0:
+                    headers.append(val)
+                elif headers[j] in self.sensitive_fields and self.public_key is not None and val != "":
+                    ciphertext = rsa_encrypt(val.encode(), self.public_key)
+                    salted_hash = hash_and_save_encrypted(ciphertext)
+                    val = salted_hash.decode()
+                if i == 0 and mode == 'a': continue
+                vals.append(val)
+        
+        size = len(self.currentCells)
+        if mode == 'a': size -= 1
+        
+        with open(filepath, mode) as csvfile:
+            for rw in range(size):
+                row = ""; empty = True
+                for i in range(len(self.currentCells[0])):
+                    x = rw * len(self.currentCells[0])
+                    val = vals[x + i]
+                    if val != "": empty = False
+                    if(i != len(self.currentCells[0]) - 1):
+                        row += val + ","
+                    else:
+                        row += val
+                if empty: continue
+                csvfile.write(row + "\n")
+        self.master.title(self.current_title)
+        o_h = True if self.private_key is None else False
+        self.loadCells(filepath=self.current_path_file, only_headers=o_h)
+        tkMessageBox.showinfo("", "Saved!")
+
+# End Application Class #
+
+
+    
