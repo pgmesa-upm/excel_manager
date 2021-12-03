@@ -1,7 +1,7 @@
 
 __pycache__
 tests.py
-#.data/
-#.config/
+.data/
+.config/
 private_key
 public_key
