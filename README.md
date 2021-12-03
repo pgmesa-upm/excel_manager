@@ -48,10 +48,20 @@ que el excel esta en modo edicion (si no se activa modo edicion no se detectara 
 
 Todo lo almacenado en '.data/.protected_data' queda guardado y aunque se elimine el paciente la informacion seguira ahi. Esta hecho para permitir que las versiones de backup sigan teniendo acceso a la info encriptada
 
+2. Resumen para instalar el programa en un disco duro
+    - Descargar el repositorio del programa de github en la carpeta root del disco
+    - Poner el excel que contiene la informacion en la carpeta '.data/' y renombrarlo a patients_data.xlsx
+    - Poner la public_key en '.config/' o especificar en config.json su ruta
+    - Crear el archivo config.json (copie la info de default_config.json) y modificar lo necesario para el proyecto
+        en cuestion
+    - Ejecutar la aplicacion y ver que funciona (se guardara un backup del excel sin encriptar, borrelo en caso
+        de que no quiera conservar ese fichero sin la encriptacion [solo se hace la primera vez que se abre el excel antes de encriptar, si ya esta encriptado se hace siempre el backup del excel encriptado])
 
-Siempre mirar el titulo para ver el feedback del editor
+3. Errores y como solucionarlos:
+    - 'IndexError: At least one sheet must be visible' se debe a que el excel tiene un formato incorrecto al
+        mencionado anteriormente y ha habido un problema al querer actualizar las hojas csv en el excel. Ahora el fichero, como puedes comprobar, no se habre, debido a que se ha escrito mal sobre el y no es reconocido por excel. Este es un caso de perdida de informacion del documento, pero deberia haber una copia de seguridad en '.data/.backups' de archivo perdido. De todas formas siempre se recomienda la primera vez que se usa el programa, guardar una copia del archivo original por si la primera vez no funciona y hay algo del excel que no tiene el formato correcto. Una vez funciona la primera vez, es seguro que funcionara de aqui en adelante si solo se modifica el excel a traves de la aplicacion. 
 
-2. CSV-editor:
+3. CSV-editor:
 En el menu se mostraran las distantias hojas de excel que se pueden editar y algunas otras funcionalidades (por ahora solo guardar). Los atajos de teclado como ctrl-s, ctrl-v y demas, estan implementados.
 Siempre mirar al titulo de la ventan del editor para obtener feedback del programa. 
 Cuando se guardan los camb
@@ -63,12 +73,15 @@ Cuando se guardan los camb
 
 - Limitaciones y cosas a tener en cuenta:
 
-3. Futuros cambios y modificaciones sugeridos a arreglar:
+4. Futuros cambios y modificaciones sugeridos a arreglar:
 -> CSV-editor:
     - Corregir bug al cambiar entre hojas csv con distinto tamaño
     - El canvas se ve desbordado por las celdas
     - La rueda del raton no funciona para moverse por la tabla 
     - Mejora de las scrollbar en general con los atajos de teclado
+-> Config:
+    - Habilitar las opciones que actualmente no estan funcionales (sobre todo el que el nombre del fichero excel sea
+        el que quieras y pueda estar donde quieras [facil de implementar])
 -> Ideas:
     - Añadir un campo a config.json que indique que campo se toma como identificador de la fila
     y que el programa solo vaya autoincementando el numero de patient
