@@ -106,8 +106,10 @@ def derive(data:bytes, salt:bytes, length:int=32, iterations=400000) -> bytes:
     
     return salted_hash
 
-# Creamos el par de claves publica/privada y comprobamos que todo sea correcto 
-if __name__ == "__main__":
+def generate_rsa_key_pairs(private_key_password:str=None):
+    password = None
+    if private_key_password is not None:
+        password = private_key_password.encode()
     # Generamos claves y las guardamos en un fichero
     private_key_path = 'private_key'
     public_key_path = 'public_key'
@@ -124,10 +126,9 @@ if __name__ == "__main__":
         print(" + Las claves son validas")
         print(f"     => Mensage desencriptado = '{deciphered_text.decode()}'")
     # Comprobamos que las claves guardadas en los ficheros son validas
-    ser_pw = b'Prueba'; load_pw = b'Prueba'
-    serialize_pem_private_key(private_key, file_path=private_key_path, password=ser_pw)
+    serialize_pem_private_key(private_key, file_path=private_key_path, password=password)
     serialize_pem_public_key(public_key, file_path=public_key_path)
-    private_key_recovered = load_pem_private_key(private_key_path, password=load_pw)
+    private_key_recovered = load_pem_private_key(private_key_path, password=password)
     public_key_recovered = load_pem_public_key(public_key_path)
     # Comprobamos que las claves recuperadas son validas
     msg = b'Hola buenas'
@@ -140,3 +141,8 @@ if __name__ == "__main__":
         print(" + Las claves recuperadas son validas")
         print(f"     => Mensage desencriptado = '{deciphered_text.decode()}'")
     
+
+# Creamos el par de claves publica/privada y comprobamos que todo sea correcto 
+if __name__ == "__main__":
+    password = None
+    generate_rsa_key_pairs(private_key_password=password)

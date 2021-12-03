@@ -83,7 +83,8 @@ def start_excel_activity(private_key:RSAPrivateKey=None):
             rsa_key_pairs=key_pairs,
             sensitive_fields=config.get('sensitive_fields')
         )
-    
+        
+    excel.backup()
     if private_key is not None:
         editor_preference = config.get("admin_editor_preference")
         if editor_preference == 'excel':

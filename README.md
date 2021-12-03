@@ -11,7 +11,7 @@ Se abriran: una terminal (ignorar y no cerrar nunca, se cierra sola al final) y 
     Este modo esta pensado para que solo se pueda añadir informacion al excel, pero no se puede modificar la existente, por lo que hay que tener cuidado y estar seguro de lo que se añade es correcto, porque una vez guardado no se podra volver a editar es informacion desde el modo usuario. Al pinchar en el modo usuario se abrira SIEMPRE el csv_editor con 5 filas para añadir informacion (si se quiere añadir mas, con guardar la informacion se volveran a tener las 5 filas en blanco). Apareceran los headers definidos por los administradores y las filas en blanco para añadir nuevos datos. Puede que el proceso de encriptacion de datos tarde un poco al guardar los datos. 
     Para ver el feedback del csv editor siempre hay que mirar el titulo de la ventana. En este tambien aparecen el numero de filas que tiene el excel, (por ejemplo para que el user sepa cual es numero del paciente nuevo que esta introduciendo). En el menu se mostraran las distantias hojas de excel que se pueden editar
 - Modo Administrador:
-    Este modo permite la edicion completa del excel desencriptado. Tanto desde el excel como desde el csv-editor (muy limitado actualmente este ultimo). Primero se abrira un explorador de archivos (puede tardar un poco en cargar), en el que se debe seleccionar la clave privada que se ha generado para el estudio, a continuacion se debe introducir la contraseña con la que se serializo esta clave privada. Si los credenciales son correctos se abrira el editor que este como predeterminado. Si son incorrectos y sabe que la contraseña es correcta, puede que haya seleccionado el archivo que no es, por lo que para seleccionar otro archivo cierre el programa y abralo de nuevo.
+    Este modo permite la edicion completa del excel desencriptado. Tanto desde el excel como desde el csv-editor (muy limitado actualmente este ultimo). Primero se abrira un explorador de archivos (puede tardar un poco en cargar), en el que se debe seleccionar la clave privada que se ha generado para el estudio, a continuacion se debe introducir la contraseña con la que se serializo esta clave privada. Si los credenciales son correctos se abrira el editor que este como predeterminado. Si son incorrectos y sabe que la contraseña es correcta, puede que haya seleccionado el archivo que no es, por lo que para seleccionar otro archivo cierre el programa y abralo de nuevo. ¡El excel puede que se habra sin ningun formato establecido o pierda el que tenia!
 
 Todas las veces que se edite tanto en modo usuario como en modo admin, se guardara una copia de backup del excel anted de la edicion, en la carpeta '.data/.backup' con la fecha y hora de la edicion de dicho archivo.
 
@@ -26,7 +26,9 @@ En la carpeta .config se encuentra el fichero config.json el cual permite modifi
 
 - "sensitive_fields": Es una lista en la que se especifican los campos que contienen informacion sensible y los cuales seran encriptados (tanto en modo user como modo admin si se introducen cambios) y desencriptados (en modo admin)
 
-Todo el programa depende de un archivo excel que se debe colocar en la carpeta .data con el nombre 'patients_data.xlsx' (en un futuro se podra elegir). Este excel se debe tratar como una unica tabla en la que cada columna debe tener un header correspondiente. No deberia haber datos fuera de la tabla sin un header correspondiente o anotaciones en celdas fuera de la tabla (se debe tratar como un csv).
+Todo el programa depende de un archivo excel que se debe colocar en la carpeta .data con el nombre 'patients_data.xlsx' (en un futuro se podra elegir). Este excel se debe tratar como una unica tabla en la que cada columna debe tener un header correspondiente. No deberia haber datos fuera de la tabla sin un header correspondiente o anotaciones en celdas fuera de la tabla (se debe tratar como un csv). Ademas esta tabla debe empezar desde la primera celda (1,A) y no contener filas en blanco de margenes (si se ponen estas se veran reflejadas en el editor y no se cogeran bien los headers). 
+!!Si no se siguen estas indicaciones puede que surja algun error en el programa y el excel se acabe escribiendo mal
+y se pierda la informacion¡¡
 El csv_editor no se podra abrir a menos que el excel no este vacio, es decir, que contenga al menos dos filas, una con los headers de la tabla y otra con un primer dato introducido en la columna (con un solo dato en la columna vale)
 -> Ej de excel no vacio: 
     Nombre Apellido Genero
@@ -66,13 +68,8 @@ Cuando se guardan los camb
     - Corregir bug al cambiar entre hojas csv con distinto tamaño
     - El canvas se ve desbordado por las celdas
     - La rueda del raton no funciona para moverse por la tabla 
-    -
+    - Mejora de las scrollbar en general con los atajos de teclado
 -> Ideas:
     - Añadir un campo a config.json que indique que campo se toma como identificador de la fila
     y que el programa solo vaya autoincementando el numero de patient
     Ej: "id_field": {name: "PATIENT_NUM", "expression": "patient_"}
-
-
-.gitignore
-El excel se va a ver feo al abrirse, con que se hagan algunos retoques ya se podra ver mejor
-Crear un proyecto base para usarlo en blanco y pasarselo a juanjo para que lo pruebe
