@@ -36,9 +36,9 @@ Todo el programa depende de un archivo excel que se debe colocar en la carpeta .
 !!Si no se siguen estas indicaciones puede que surja algun error en el programa y el excel se acabe escribiendo mal
 y se pierda la informacion¡¡
 El csv_editor no se podra abrir a menos que el excel no este vacio, es decir, que contenga al menos dos filas, una con los headers de la tabla y otra con un primer dato introducido en la columna (con un solo dato en la columna vale)
--> Ej de excel no vacio: 
-    Nombre Apellido Genero
-    Felipe            M       
+    -> Ej de excel no vacio: 
+        Nombre Apellido Genero
+        Felipe            M       
 
 Puede que los tipos no se almacenen correctamente en el excel (numeros se pueden guardar como strings)(Se deja asi para evitar porblemas con algun tipo de expresiones que pueden ser interpretadas erroneamente como formulas)
 Excel te avisa luego si quieres que lo interprete como numero o dejarlo asi 
@@ -80,12 +80,12 @@ Cuando se guardan los camb
 - Limitaciones y cosas a tener en cuenta:
 
 ### 5. Futuros cambios y modificaciones sugeridos a arreglar
--> CSV-editor:
+#### CSV-editor:
 - Corregir bug al cambiar entre hojas csv con distinto tamaño
 - El canvas se ve desbordado por las celdas
 - La rueda del raton no funciona para moverse por la tabla 
 - Mejora de las scrollbar en general con los atajos de teclado
--> Config:
+#### Config:
 - Habilitar las opciones que actualmente no estan funcionales (sobre todo el que el nombre del fichero excel sea el que quieras y pueda estar donde quieras [facil de implementar])
--> Ideas:
+#### Ideas:
 - Añadir un campo a config.json que indique que campo se toma como identificador de la fila y que el programa solo vaya autoincementando el numero de patient Ej: "id_field": {name: "PATIENT_NUM", "expression": "patient_"}
