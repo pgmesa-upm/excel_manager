@@ -2,7 +2,9 @@
 # EXCEL MANAGER (V-1.0) (solo compatible con Windows)
 
 ### Autor
-Pablo García Mesa - pgmesa.sm@gmail.com
+Pablo García Mesa
+- pgmesa.sm@gmail.com
+- https://github.com/pgmesa-upm/excel_manager
 
 ### 0. Descripción
 Programa para el manejo del excel del estudio de esclerosis múltiple, llevado a cabo por la UPM en colaboración con el oftalmológico del Gregorio Marañón 
