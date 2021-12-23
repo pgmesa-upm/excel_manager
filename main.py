@@ -13,7 +13,7 @@ def main():
     print(os.getcwd())
     views.init()
     while not views._close:
-        try:
+        # try:
             mode = views.select_mode()
             if mode == views.USER_MODE:
                 views.start_excel_activity()
@@ -21,8 +21,8 @@ def main():
                 correct_key, private_key = views.ask_private_key()
                 if correct_key:
                     views.start_excel_activity(private_key=private_key)
-        except Exception as err:
-            views.error(str(err))
+        # except Exception as err:
+        #     views.error(str(err))
     views.close()
     
 if __name__ == "__main__":
