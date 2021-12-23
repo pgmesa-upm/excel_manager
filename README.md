@@ -36,7 +36,7 @@ Todo el programa depende de un archivo excel que se debe colocar en la carpeta .
 !!Si no se siguen estas indicaciones puede que surja algun error en el programa y el excel se acabe escribiendo mal
 y se pierda la informacion¡¡
 El csv_editor no se podra abrir a menos que el excel no este vacio, es decir, que contenga al menos dos filas, una con los headers de la tabla y otra con un primer dato introducido en la columna (con un solo dato en la columna vale)
-    -> Ej de excel no vacio: 
+    - Ej de excel no vacio: 
         Nombre Apellido Genero
         Felipe            M       
 
