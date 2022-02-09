@@ -35,8 +35,8 @@ En la carpeta .config se encuentra el fichero config.json el cual permite modifi
 - "sensitive_fields": Es una lista en la que se especifican los campos que contienen información sensible y los cuales serán encriptados (tanto en modo user como modo admin si se introducen cambios) y desencriptados (en modo admin)
 
 Todo el programa depende de un archivo excel que se debe colocar en la carpeta .data con el nombre 'patients_data.xlsx' (en un futuro se podrá elegir). Este excel se debe tratar como una única tabla en la que cada columna debe tener un header correspondiente. No debería haber datos fuera de la tabla sin un header correspondiente o anotaciones en celdas fuera de la tabla (se debe tratar como un csv). Además esta tabla debe empezar desde la primera celda (1,A) y no contener filas en blanco de márgenes (si se ponen estas se verán reflejadas en el editor y no se cogerán bien los headers). 
-!!Si no se siguen estas indicaciones puede que surja algún error en el programa y el excel se acabe escribiendo mal
-y se pierda la información¡¡
+¡¡Si no se siguen estas indicaciones puede que surja algún error en el programa y el excel se acabe escribiendo mal
+y se pierda la información!!
 El csv_editor no se podrá abrir a menos que el excel no este vacío, es decir, que contenga al menos dos filas, una con los headers de la tabla y otra con un primer dato introducido en la columna (con un solo dato en la columna vale)
 - Ej de excel no vacío: 
     ```
@@ -70,6 +70,7 @@ Todo lo almacenado en '.data/.protected_data' queda guardado y aunque se elimine
 ### 3. Errores y como solucionarlos
 - 'IndexError: At least one sheet must be visible' se debe a que el excel tiene un formato incorrecto al
     mencionado anteriormente y ha habido un problema al querer actualizar las hojas csv en el excel. Ahora el fichero, como puedes comprobar, no se habre, debido a que se ha escrito mal sobre él y no es reconocido por excel. Este es un caso de pérdida de informacion del documento, pero deberia haber una copia de seguridad en '.data/.backups' de archivo perdido. De todas formas, siempre se recomienda la primera vez que se usa el programa, guardar una copia del archivo original por si la primera vez no funciona y hay algo del excel que no tiene el formato correcto. Una vez funciona la primera vez, es seguro que funcionara de aqui en adelante si solo se modifica el excel a traves de la aplicacion. 
+- Puede que usando el csv editor si se tarda mucho en guardar los cambios, el disco duro se duerma y al querer guardar los cambios se produzca un error. Para solucionarlo, si se ve la luz del disco apagada, hay que meterse desde el explorador de archivos en alguna de sus carpetas para despertarlo. Una vez despertado (luz azul encendida) ya se pude proceder a guardar los cambios con normalidad.
 
 ### 4. CSV-editor
 En el menú se mostrarán las distintas hojas de excel que se pueden editar y algunas otras funcionalidades (por ahora solo guardar). Los atajos de teclado como ctrl-s, ctrl-v y demas, están implementados.
