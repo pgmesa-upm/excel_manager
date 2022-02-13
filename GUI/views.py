@@ -61,7 +61,7 @@ def select_mode() -> int:
 def start_excel_activity(private_key:RSAPrivateKey=None):
     global _screen, _close, _screen
     
-    if not os.path.exists(excel.excel_path):
+    if not os.path.exists(excel.get_excel_path()):
         raise Exception("No existe el fichero patients_data.xlsx en la carpeta .data")
     if excel.empty() and private_key is None:
         raise Exception("El archivo patients_data.xlsx esta vacio, csv editor no permitido")
