@@ -1,7 +1,8 @@
 {
-    "excel_path": ".config/patients_data.xlsx",
+    "excel_path": ".data/patients_data.xlsx",
     "admin_editor_preference": "excel", 
     "public_key_path": ".config/public_key",
     "orientation": "colums",
-    "sensitive_fields": []
+    "sensitive_fields": [],
+    "data_types": {}
 }

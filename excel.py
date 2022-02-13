@@ -1,6 +1,7 @@
 
 import os
 import json
+import openpyxl as pyxl
 import datetime as dt
 from pathlib import Path
 import pandas as pd
@@ -27,6 +28,12 @@ def refresh_csv_sheets() -> tuple[list, list]:
     if empty(): return
     excel = pd.ExcelFile(excel_path)
     sheet_names = excel.sheet_names; sheets_info = {}
+    # Eliminamos las que ya no exitan en el excel (cambio de nombre o eliminadas)
+    existing_sh_names = list_csv_sheets()
+    for ex_sh in existing_sh_names:
+        if ex_sh not in sheet_names:
+            os.remove(data_dir_path/(ex_sh+".csv"))
+    
     for sheet_name in sheet_names:
         sheet:DataFrame = excel.parse(sheet_name)
         sheet_dest_path = data_dir_path/(sheet_name+".csv")
@@ -34,17 +41,53 @@ def refresh_csv_sheets() -> tuple[list, list]:
         sheet.to_csv(sheet_dest_path, index=False)
         
     return sheets_info
+
+def list_csv_sheets() -> list:
+    filtered = filter(lambda f: f.endswith('.csv'), os.listdir(data_dir_path))
+    return list(map(lambda f: f.removesuffix('.csv'), filtered))
     
-def update_excel():
+def update_excel(keep_excel_format=True):
     if empty(): return
-    csv_sheet_names = os.listdir(data_dir_path)
-    with pd.ExcelWriter(excel_path) as writer:
+    csv_sheet_names = list_csv_sheets()
+    if keep_excel_format:
+        sheets_dict = {}
         for sheet_name in csv_sheet_names:
-            if not sheet_name.endswith('.csv'): continue
-            df = pd.read_csv(data_dir_path/sheet_name)
-            sheet_name = sheet_name.removesuffix('.csv')
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
-                   
+            df = pd.read_csv(data_dir_path/(sheet_name+".csv"))
+            csv_dict = df.to_dict("list")
+            sheets_dict[sheet_name] = csv_dict
+        wb = pyxl.load_workbook(excel_path)
+        _write_dict_into_wb(wb, sheets_dict)
+    else:
+        with pd.ExcelWriter(excel_path) as writer:
+            for sheet_name in csv_sheet_names:
+                df = pd.read_csv(data_dir_path/(sheet_name+".csv"))
+                # parse csv data
+                ...
+                df.to_excel(writer, sheet_name=sheet_name, index=False)
+            
+def _parse_colum(colum:list, dtype:str) -> list:
+    try:
+        if dtype == 'int':
+            return list(map(lambda elem: int(elem), colum))
+        elif dtype == 'float':
+            return list(map(lambda elem: float(elem), colum))
+        elif dtype == 'str-q':
+            return list(map(lambda elem: "'"+str(elem), colum))   
+    except: pass
+    return list(map(lambda elem: str(elem), colum)) 
+
+def _write_dict_into_wb(wb:pyxl.Workbook, sheets_dict:dict):
+    # Guardar por celdas en cada ws  
+    wb = pyxl.load_workbook(excel_path)
+    for sheet_name, sheet_info in sheets_dict.items():
+        ws = wb[sheet_name]
+        for colum, header in enumerate(sheet_info.keys(),1):
+            colum_elements = sheet_info[header]
+            ws.cell(1, colum).value = header
+            for row, elem  in enumerate(colum_elements, 2):
+                ws.cell(row, colum).value = elem
+    wb.save(excel_path)
+             
 def backup():
     try:
         backup_path = data_dir_path/backup_dir
@@ -57,7 +100,7 @@ def backup():
             file.write(content)
     except FileNotFoundError: pass
 
-def decrypt_excel(private_key:RSAPrivateKey):
+def decrypt_excel(private_key:RSAPrivateKey, keep_excel_format:bool=True):
     if empty(): return
     sfields = config.get('sensitive_fields')
     excel = pd.ExcelFile(excel_path)
@@ -81,18 +124,25 @@ def decrypt_excel(private_key:RSAPrivateKey):
                     decrypted_colum.append(elem)
                 colum = decrypted_colum
             decrypted_sheet[header] = colum
-        
-        df:DataFrame = pd.DataFrame.from_dict(decrypted_sheet, orient='columns') # columns is default
-        # print(df.to_json(indent=4))
-        decrypted_sheets[sheet_name] = df
-        
-    with pd.ExcelWriter(excel_path) as writer:
-        for sheet_name, df in decrypted_sheets.items():
-            df.to_excel(writer, sheet_name=sheet_name, index=False)   
+        if keep_excel_format:
+            decrypted_sheets[sheet_name] = decrypted_sheet
+        else:
+            df:DataFrame = pd.DataFrame.from_dict(decrypted_sheet, orient='columns') # columns is default
+            # print(df.to_json(indent=4))
+            decrypted_sheets[sheet_name] = df
+    
+    if keep_excel_format:
+        wb = pyxl.load_workbook(excel_path)
+        _write_dict_into_wb(wb, decrypted_sheets)
+    else:   
+        with pd.ExcelWriter(excel_path) as writer:
+            for sheet_name, df in decrypted_sheets.items():
+                df.to_excel(writer, sheet_name=sheet_name, index=False)   
 
-def protect_sensitive_data(public_key:RSAPublicKey):
+def protect_sensitive_data(public_key:RSAPublicKey, keep_excel_format:bool=True):
     if empty(): return
-    sfields = config.get('sensitive_fields')
+    sfields:list = config.get('sensitive_fields')
+    if sfields is None: sfields = []
     excel = pd.ExcelFile(excel_path)
     sheet_names = excel.sheet_names
     protected_sheets = {}
@@ -102,6 +152,7 @@ def protect_sensitive_data(public_key:RSAPublicKey):
         protected_sheet = {}
         for header in csv_dict:
             colum = csv_dict[header]
+            # Encriptamos datos sensibles
             if header in sfields:
                 protected_colum = []
                 for elem in colum:
@@ -116,14 +167,20 @@ def protect_sensitive_data(public_key:RSAPublicKey):
                     protected_colum.append(elem)
                 colum = protected_colum
             protected_sheet[header] = colum
-
-        df:DataFrame = pd.DataFrame.from_dict(protected_sheet, orient='columns') # columns is default
-        # print(df.to_json(indent=4))
-        protected_sheets[sheet_name] = df
-        
-    with pd.ExcelWriter(excel_path) as writer:
-        for sheet_name, df in protected_sheets.items():
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
+        if keep_excel_format:
+            protected_sheets[sheet_name] = protected_sheet
+        else:
+            df:DataFrame = pd.DataFrame.from_dict(protected_sheet, orient='columns') # columns is default
+            # print(df.to_json(indent=4))
+            protected_sheets[sheet_name] = df
+    if keep_excel_format:
+        # Guardar por celdas en cada ws  
+        wb = pyxl.load_workbook(excel_path)
+        _write_dict_into_wb(wb, protected_sheets)
+    else:
+        with pd.ExcelWriter(excel_path) as writer:
+            for sheet_name, df in protected_sheets.items():
+                df.to_excel(writer, sheet_name=sheet_name, index=False)
         
 def _get_date(path_friendly:bool=False) -> str:
     datetime = dt.datetime.now()
