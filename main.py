@@ -1,6 +1,14 @@
 
 import os
-import GUI.views as views
+import sys
+
+try:
+    import GUI.views as views
+except ModuleNotFoundError as err:
+    print("[!] ERROR: No se han instalado todas las dependencias del programa",
+          f"\n -> ERROR_MSG: {err}",
+          "\n -> Introduce 'pip install -r requirements.txt', a ser posible en un entorno virtual aislado")
+    exit(1)
 
 # ----------------------------------------------------------------------
 # Programa creado por el alumno Pablo García Mesa para la interaccion 
@@ -8,6 +16,16 @@ import GUI.views as views
 # llevada a cabo en el oftalmológico del GM y realizado en conjunto con 
 # la UPM.
 # ----------------------------------------------------------------------
+
+# -- Python version check ---
+dig1, dig2 = sys.version.split('.')[:2]
+req_d1, req_d2 = 3, 9
+print(f"Detected python version: {dig1}.{dig2}")
+print(f"Required python version: {req_d1}.{req_d2} or higher")
+if req_d1 > int(dig1) or req_d2 > int(dig2):
+    print(f"ERROR: The python version must be {req_d1}.{req_d2} or higher")
+    exit(1)
+# ---------------------------
 
 # INICIO DEL PROGRAMA (Esquema basico de funcionamiento)
 def main():

@@ -39,7 +39,7 @@ def showInput(screen, order:int, width=140, height=32) -> InputBox:
     
     return box
 
-def show_msg(screen, msg:str, color=WHITE, backgroundColor=BLACK, fontSize=30, order=1):
+def show_msg(screen, msg:str, color=WHITE, backgroundColor=BLACK, fontSize=25, order=1):
     posGenerator = _calcDisplayOfOption(order)
     for _ in range(order-1): next(posGenerator) # Nos interesa el ultimo
     rect = _showText(screen, msg, color, backgroundColor, screenWidth/2, next(posGenerator), fontSize, True)

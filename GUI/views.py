@@ -60,11 +60,11 @@ def select_mode() -> int:
 
 def start_excel_activity(private_key:RSAPrivateKey=None):
     global _screen, _close, _screen
-    
-    if not os.path.exists(excel.get_excel_path()):
-        raise Exception("No existe el fichero patients_data.xlsx en la carpeta .data")
+    excel_path = excel.get_excel_path()
+    if not os.path.exists(excel_path):
+        raise Exception(f"No existe el fichero'{excel_path.name}' en la ruta especificada en el archivo '.config/config.json'")
     if excel.empty() and private_key is None:
-        raise Exception("El archivo patients_data.xlsx esta vacio, csv editor no permitido")
+        raise Exception(f"El archivo '{excel_path.name}' esta vacio, csv editor no permitido")
     
     public_key = load_pem_public_key(config.get("public_key_path"))
     key_pairs = (private_key, public_key)
@@ -120,7 +120,26 @@ def start_excel_activity(private_key:RSAPrivateKey=None):
             open_csveditor()
     else:
         open_csveditor()
-    excel.update_excel()
+    try:
+        excel.update_excel()
+    except PermissionError:
+        print("[%] Error, permission denied (excel is opened)")
+        stop = False
+        while not excel.check() or not stop:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    stop = True
+                if event.type == pygame.VIDEORESIZE:
+                    size = (event.w, event.h)
+                    display.configureScreen(size)
+            _screen.fill(display.BLACK)
+            display.show_msg(_screen, "PERMISSION DENIED: El excel se encuentra abierto, cierrelo para poder actualizarlo")
+            pygame.display.update()
+        if excel.check():
+            _screen.fill(display.BLACK)
+            display.show_msg(_screen, "Actualizando excel...")
+            pygame.display.update()
+            excel.update_excel()
     # Cerramos el programa
     _close = True
         
