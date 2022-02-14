@@ -3,9 +3,10 @@ import os
 import GUI.views as views
 
 # ----------------------------------------------------------------------
-# Programa creado para la interaccion con el Excel de la investigación
-# de Esclerosis Multiple, RIS y NMO, llevada a cabo en el oftalmológico
-# del GM y realizado en conjunto con la UPM.
+# Programa creado por el alumno Pablo García Mesa para la interaccion 
+# con el Excel de la investigación de Esclerosis Multiple, RIS y NMO, 
+# llevada a cabo en el oftalmológico del GM y realizado en conjunto con 
+# la UPM.
 # ----------------------------------------------------------------------
 
 # INICIO DEL PROGRAMA (Esquema basico de funcionamiento)

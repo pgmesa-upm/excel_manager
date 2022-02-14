@@ -90,7 +90,7 @@ def showTextBoxMsg(msg:str, title:str=""):
     tkMessageBox.showinfo(title, msg)
 
 # Custom Editor
-def showCustomEditor(csv_group_label:str, csv_paths:Dict={}, rsa_key_pairs:Tuple=None, sensitive_fields=[]):
+def showCustomEditor(csv_group_label:str, csv_paths:Dict={}, rsa_key_pairs:Tuple=None, sensitive_fields=[], hide_fields=[]):
     
     win = Tk()
 
@@ -125,7 +125,8 @@ def showCustomEditor(csv_group_label:str, csv_paths:Dict={}, rsa_key_pairs:Tuple
         font_size=font_size, 
         private_key=rsa_key_pairs[0],
         public_key=rsa_key_pairs[1],
-        sensitive_fields=sensitive_fields
+        sensitive_fields=sensitive_fields,
+        hide_fields=hide_fields
     )
     menubar = Menu(myframe)
 

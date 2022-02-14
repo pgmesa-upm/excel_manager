@@ -2,11 +2,13 @@
 import os
 from math import isnan
 import openpyxl as pyxl
+from openpyxl.utils import column_index_from_string
 import datetime as dt
 from pathlib import Path
 import pandas as pd
 from pandas.core.frame import DataFrame
 from subprocess import Popen, PIPE, run
+from typing import Union
 
 import config
 from editor.encryption import rsa_encrypt, RSAPublicKey, RSAPrivateKey, rsa_decrypt
@@ -15,6 +17,8 @@ from editor.protected_data import hash_and_save_encrypted, get_encrypted
 data_dir_name = '.data'
 backup_dir = '.backup'
 data_dir_path = Path(data_dir_name).resolve()
+
+date_format = config.get('date_format', else_return='%d/%m/%Y')
 
 def get_excel_path() -> Path:
     excel_path = config.get('excel_path')
@@ -30,7 +34,8 @@ def launch() -> bool:
 def refresh_csv_sheets() -> tuple[list, list]:
     print("[%] Refreshing csv sheets...")
     if empty(): return
-    excel = pd.ExcelFile(get_excel_path())
+    excel_path = get_excel_path()
+    excel = pd.ExcelFile(excel_path)
     sheet_names = excel.sheet_names; sheets_info = {}
     # Eliminamos las que ya no exitan en el excel (cambio de nombre o eliminadas)
     existing_sh_names = list_csv_sheets()
@@ -42,7 +47,8 @@ def refresh_csv_sheets() -> tuple[list, list]:
         sheet:DataFrame = excel.parse(sheet_name)
         sheet_dest_path = data_dir_path/(sheet_name+".csv")
         sheets_info[sheet_name] = sheet_dest_path
-        sheet.to_csv(sheet_dest_path, index=False)
+        sheet.to_csv(sheet_dest_path, index=False, date_format=date_format)
+        sheet.columns
         
     return sheets_info
 
@@ -66,11 +72,9 @@ def _parse_elem(elem:str, dtype:str) -> any:
     try:
         # Los numeros mejor no convertirlos
         if dtype == 'int':
-            ...
-            # return int(elem)
+            return int(elem)
         elif dtype == 'float':
-            ...
-            # return float(elem)
+            return float(elem)
         elif dtype == 'str-q':
             if not str(elem).startswith("'"):
                 return "'"+str(elem)
@@ -217,4 +221,50 @@ if __name__ == "__main__":
     # private_key = load_pem_private_key('private_key', password='Prueba'.encode())
     # decrypt_excel(private_key)
     # protect_sensitive_data(public_key)
+    #get_excel_sheets_as_csv()
     refresh_csv_sheets()
+    
+# def get_excel_sheets_as_csv():
+#     excel_path = get_excel_path()
+#     wb = pyxl.load_workbook(excel_path)
+#     sheet_names = wb.sheetnames
+#     for sheet in sheet_names:
+#         if sheet != 'CONTROL': continue
+#         ws = wb[sheet]
+#         start, end = ws.calculate_dimension().split(":")
+#         start_row = column_index_from_string(start[0]); end_row = column_index_from_string(end[0])
+#         start_column = int(start[1:]); end_column = int(end[1:])
+#         for row_index in range(start_row, end_row):
+#             row_str = ""
+#             for column_index in range(start_column, end_column):
+#                 cell_val = ws.cell(row_index, column_index).value
+#                 print(cell_val)
+                
+# def df_to_csv(df:DataFrame, filepath:Union[str,Path]=None) -> str:
+#     """Parseador de Pandas Dataframe a csv sin ningun tipo de parseador de datos de 
+#     pandas, (util para fechas en un formato especifico)"""
+#     headers = list(df.columns.values)
+#     csv_str = ""
+#     df = df.reset_index()  # make sure indexes pair with number of rows
+    
+#     def iter_rows(df) -> str:
+#         for index, row in df.iterrows():
+#             row_str = ""
+#             for h in headers:
+#                 val = row[h]
+#                 print(val, str(val))
+#                 if index == len(headers)-1:
+#                     row_str += str(val)
+#                 else: 
+#                     row_str += str(val) + ","
+#             yield row_str+"\n"
+
+#     if filepath is None:
+#         for row in iter_rows(df):
+#             csv_str += row  
+#     else:
+#         with open(filepath, 'w') as csvfile:
+#             for row in iter_rows(df):
+#                 csv_str += row  
+#                 csvfile.write(row)
+#     return csv_str

@@ -22,7 +22,7 @@ class CSVEditor(Frame):
     currentCells = []
     currentCell = None
 
-    def __init__(self, master=None, font_size=10, private_key=None, public_key=None, sensitive_fields:list=None):
+    def __init__(self, master=None, font_size=10, private_key=None, public_key=None, sensitive_fields:list=None, hide_fields:list=[]):
         Frame.__init__(self, master)
         self.private_key = private_key
         self.public_key = public_key
@@ -30,6 +30,8 @@ class CSVEditor(Frame):
         self.current_path_file = None
         self.current_title = None
         self.font_size = font_size
+        self.hide_fields = hide_fields
+        self.hidded_indexes = {}
         #self.grid()
         #self.createDefaultWidgets()
         
@@ -186,7 +188,16 @@ class CSVEditor(Frame):
             num_rows = len(rd)
             self.master.title(self.current_title + " -> Size = " + str(num_rows-1))
             if self.private_key is None:
-                headers = rd[0]; col = len(headers)
+                headers = rd[0]
+                hide_headers = []
+                for header in self.hide_fields:
+                    if header in headers: 
+                        h_index = headers.index(header)
+                        self.hidded_indexes[h_index] = header
+                        hide_headers.append(header)
+                for h in hide_headers:
+                    headers.remove(h)
+                col = len(headers)
                 rows.append(headers)
                 for _ in range(6):
                     ary.append([])
@@ -282,32 +293,46 @@ class CSVEditor(Frame):
         if self.private_key is not None:
             mode = 'w'
         
-        self.master.title("Encryptando y Guardando (puede tardar)...")
+        self.master.title("Encriptando y Guardando (puede tardar)...")
         headers = []
         vals = []
+        
         for i in range(len(self.currentCells)):
-            for j in range(len(self.currentCells[0])):        
+            inserted_indexes = []
+            z = 0
+            for j in range(len(self.currentCells[0])): 
+                # Añadimos los campos omitidos
+                if j in self.hidded_indexes and j not in inserted_indexes:
+                    z = j;
+                    while z in self.hidded_indexes: 
+                        if i == 0:
+                            headers.append(self.hidded_indexes[z])
+                        else:
+                            vals.append("")
+                        inserted_indexes.append(z); z+=1
+                # Vemos si hay que encriptar
                 val = self.currentCells[i][j].get(1.0, END).strip()
                 if i == 0:
                     headers.append(val)
-                elif headers[j] in self.sensitive_fields and self.public_key is not None and val != "":
+                elif headers[z] in self.sensitive_fields and self.public_key is not None and val != "":
                     ciphertext = rsa_encrypt(val.encode(), self.public_key)
                     salted_hash = hash_and_save_encrypted(ciphertext)
                     val = salted_hash.decode()
+                z+=1
                 if i == 0 and mode == 'a': continue
-                vals.append(val)
-        
-        size = len(self.currentCells)
-        if mode == 'a': size -= 1
+                vals.append(val);
+                
+        num_rows = len(self.currentCells); num_colums = len(headers)
+        if mode == 'a': num_rows -= 1
         
         with open(filepath, mode) as csvfile:
-            for rw in range(size):
+            for rw in range(num_rows):
                 row = ""; empty = True
-                for i in range(len(self.currentCells[0])):
-                    x = rw * len(self.currentCells[0])
+                for i in range(num_colums):
+                    x = rw * num_colums
                     val = vals[x + i]
                     if val != "": empty = False
-                    if(i != len(self.currentCells[0]) - 1):
+                    if(i != num_colums - 1):
                         row += val + ","
                     else:
                         row += val

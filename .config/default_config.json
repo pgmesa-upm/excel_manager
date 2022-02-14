@@ -2,7 +2,9 @@
     "excel_path": ".data/patients_data.xlsx",
     "admin_editor_preference": "excel", 
     "public_key_path": ".config/public_key",
+    "date_format": "%d/%m/%Y",
     "orientation": "colums",
     "sensitive_fields": [],
-    "data_types": {}
+    "data_types": {},
+    "hide_fields_from_users": []
 }

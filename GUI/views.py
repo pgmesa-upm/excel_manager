@@ -81,7 +81,8 @@ def start_excel_activity(private_key:RSAPrivateKey=None):
             csv_group_label='Study Groups',
             csv_paths=csv_sheets,
             rsa_key_pairs=key_pairs,
-            sensitive_fields=config.get('sensitive_fields')
+            sensitive_fields=config.get('sensitive_fields', else_return=[]),
+            hide_fields=config.get('hide_fields_from_users', else_return=[])
         )
         
     excel.backup()
