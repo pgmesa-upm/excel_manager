@@ -40,6 +40,8 @@ def main():
                 correct_key, private_key = views.ask_private_key()
                 if correct_key:
                     views.start_excel_activity(private_key=private_key)
+        except PermissionError:
+            views.error("PERMISSION ERROR: El excel ya estaba abierto o siendo usado por un tercero")
         except Exception as err:
             views.error(str(err))
     views.close()
