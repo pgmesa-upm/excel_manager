@@ -1,5 +1,5 @@
 
-# EXCEL MANAGER (V-1.0) (solo compatible con Windows)
+# EXCEL MANAGER (V-2.0) (solo compatible con Windows)
 
 ### Autor
 Pablo García Mesa
