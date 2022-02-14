@@ -9,7 +9,7 @@ import easygui
 import excel
 import GUI.display as display
 import config
-from editor.encryption import load_pem_private_key, load_pem_public_key, RSAPrivateKey
+from crypt_utilities.asymmetric import load_pem_private_key, load_pem_public_key, RSAPrivateKey
 
 
 USER_MODE = 0

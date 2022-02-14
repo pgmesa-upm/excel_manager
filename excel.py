@@ -11,7 +11,7 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 
 import config
-from editor.encryption import rsa_encrypt, RSAPublicKey, RSAPrivateKey, rsa_decrypt
+from crypt_utilities.asymmetric import rsa_encrypt, RSAPublicKey, RSAPrivateKey, rsa_decrypt
 from editor.protected_data import hash_and_save_encrypted, get_encrypted
 
 data_dir_name = '.data'

@@ -4,10 +4,7 @@ from typing import Union
 from pathlib import Path
 import pickle as pkl
 
-if __name__ == "__main__":
-    from encryption import derive, generate_salt
-else:
-    from .encryption import derive, generate_salt
+from crypt_utilities.hashes import derive, generate_salt
 
 data_dir = '.data'
 pd_fname = '.protected_data'

@@ -6,7 +6,7 @@ import tkinter.filedialog as tkFileDialog
 import tkinter.font as tkFont
 import csv
 
-from .encryption import rsa_encrypt, rsa_decrypt
+from crypt_utilities.asymmetric import rsa_encrypt, rsa_decrypt
 from .protected_data import get_encrypted, hash_and_save_encrypted
 
 # codigo base: https://github.com/ssebs/csveditor

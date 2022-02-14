@@ -119,3 +119,11 @@ Siempre mirar al título de la ventana del editor para obtener feedback del prog
 - Mejora de las scrollbar en general con los atajos de teclado
 #### Config:
 - Habilitar las opciones que actualmente no están funcionales ('orientation')
+
+## Lectura complementaria sobre el funcionamiento del programa (información no necesaria para utilizar el programa)
+### 6. Método de encriptación de los datos
+Este programa utiliza una librería llamada 'crypt_utilities', desarrollada también por el autor de este programa, que se basa en la conocida libreria criptográfica de 'cryptography'. Este programa utiliza encriptación asimétrica RSA (clave pública:encripta - clave privada:desencripta).
+
+Para desencriptar los campos es necesario por tanto, el fichero con clave privada y la contraseña con la que se serializó la contraseña (si es que se utilizó alguna). El fichero de acceso a la clave pública se debe especificar en el './.config/config.json' o poner en el directorio '.config' que es donde se busca por defecto.
+
+Cada celda es encriptada con la clave privada y después hasheada mediante el algoritmo PBKDF2HMAC a una longitud fija de 10 caracteres. A continuación se guardan el texto y la sal utilizada (única para cada celda) en un diccionario en el archivo '.protected_data' y se introduce el hash en la celda del excel. Esto se realiza para evitar saturar el excel con celdas de texto de gran longitud, como son los datos encriptados por RSA, y así, mantener la legibilidad.
