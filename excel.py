@@ -7,7 +7,6 @@ from pathlib import Path
 from subprocess import Popen, PIPE, run
 
 import openpyxl as pyxl
-from openpyxl.utils import column_index_from_string
 import pandas as pd
 from pandas.core.frame import DataFrame
 
