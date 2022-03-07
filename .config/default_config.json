@@ -7,5 +7,6 @@
     "id_field": "",
     "sensitive_fields": [],
     "data_types": {},
-    "hide_fields_from_users": []
+    "hide_fields_from_users": [],
+    "backup-not-encrypted": true
 }

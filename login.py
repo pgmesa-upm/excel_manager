@@ -30,12 +30,12 @@ def init_login():
         os.remove(hashed_ids_file_path)
     valid_pw = False
     while not valid_pw:
-        password = str(input("Introduce the password of the program: "))
+        password = str(input("=> Add a password of the program: "))
         if password == "":
             print("[!] Password can't be void")
             continue
         print(f"-> '{password}'")
-        confirmation = str(input("Repeat the password: "))
+        confirmation = str(input("=> Repeat the password: "))
         print(f"-> '{confirmation}'")
         if password != confirmation:
             print("[!] Passwords don't match")

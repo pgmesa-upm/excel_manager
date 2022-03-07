@@ -337,7 +337,9 @@ class CSVEditor(Frame):
                         id_field = config.get("id_field")
                         tkMessageBox.showinfo("", f"ERROR: {id_field} '{elem}' already exist in '{sheet_name}' line {found[sheet_name]}")
                         return
-                hash_sheet_ids_and_save(sheet_name, array, override=False)
+                ov = True
+                if self.private_key is None: ov = False
+                hash_sheet_ids_and_save(sheet_name, array, override=ov)
                     
                 
         num_rows = len(self.currentCells); num_colums = len(headers)

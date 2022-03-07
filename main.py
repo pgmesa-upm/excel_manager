@@ -3,24 +3,25 @@ import os
 import sys
 from pathlib import Path
 
+# ----------------------------------------------------------------------
+# Programa creado para la interaccion con el Excel de la investigación
+# de Esclerosis Multiple, RIS y NMO, llevada a cabo en el oftalmológico
+# del Gregorio Marañón y en conjunto con la UPM.
+#
+# @autor: Pablo García Mesa
+# ----------------------------------------------------------------------
+
 try:
     from login import get_login_info, init_login
     import GUI.views as views
     from crypt_utilities.asymmetric import generate_rsa_key_pairs
     from config import get
+    from editor.protected_data import hashed_ids_file_path
 except ModuleNotFoundError as err:
     print("[!] ERROR: No se han instalado todas las dependencias del programa",
           f"\n -> ERROR_MSG: {err}",
           "\n -> Introduce 'pip install -r requirements.txt', a ser posible en un entorno virtual aislado")
     exit(1)
-
-# ----------------------------------------------------------------------
-# Programa creado para la interaccion con el Excel de la investigación
-# de Esclerosis Multiple, RIS y NMO, llevada a cabo en el oftalmológico
-# del GM y en conjunto con la UPM.
-#
-# @autor: Pablo García Mesa
-# ----------------------------------------------------------------------
 
 # -- Python version check ---
 dig1, dig2 = sys.version.split('.')[:2]
@@ -42,19 +43,18 @@ if public_key_path_str != None:
 # INICIO DEL PROGRAMA (Esquema basico de funcionamiento)
 def main():
     print("Program Location:", program_path)
-    hased_pw, _ = get_login_info()
-    if hased_pw is None:
-        print("[!] No se ha encontrado ninguna contraseña de acceso para el programa")
-        print("¿Desea añadir una?")
-        print("Se perderan todos los datos de /.data/.hashed_ids (buscar por id en el modo usuario dejará de funcionar para los datos encriptados)")
-        print("Hará falta que un administrador abra el excel para refrescar el archivo")
-        print("Si es la primera vez que inicia el programa introduzca 'y'")
-        answer = str(input("=> Respuesta (y/n): "))
-        if answer.lower() == 'y':
-            init_login()
-        else:
-            print("[!] Operation cancelled (you must recover the /.data/.login file to run the program)")
-            exit(1)
+    hashed_pw, _ = get_login_info()
+    if hashed_pw is None:
+        if os.path.exists(hashed_ids_file_path):
+            print("[!] No se ha encontrado ninguna contraseña de acceso para el programa")
+            print("¿Desea añadir una?")
+            print("Se perderan todos los datos de /.data/.hashed_ids (buscar por id en el modo usuario dejará de funcionar para los datos encriptados)")
+            print("Hará falta que un administrador abra el excel para refrescar el archivo")
+            answer = str(input("=> Respuesta (y/n): "))
+            if answer.lower() != 'y':
+                print("[!] Operation cancelled (you must recover the /.data/.login file to run the program)")
+                exit(1)
+        init_login()
     if not os.path.exists(public_key_path):
         print(f"The program didn't find a public_key in '{public_key_path}'")
         answer = str(input("=> Do you want to create an rsa-key-pair now? (y/n): "))

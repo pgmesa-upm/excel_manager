@@ -167,8 +167,10 @@ def ask_private_key() -> tuple[bool, Union[RSAPrivateKey, None]]:
                 display.configureScreen(size)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 password = text_box.text
+                if password == "": password = None
+                else: password = password.encode()
                 try:
-                    private_key = load_pem_private_key(key_file_path, password=password.encode())
+                    private_key = load_pem_private_key(key_file_path, password=password)
                 except:
                     msg = "Credenciales Incorrectos (revisa el fichero introducido o la contraseña)"
                 else:
@@ -198,7 +200,7 @@ def start_editor(private_key:RSAPrivateKey=None):
     excel_path = excel.get_excel_path()
     print(excel_path)
     if not os.path.exists(excel_path):
-        raise Exception(f"No existe el fichero '{excel_path.name}' en la ruta especificada '/{excel.data_dir_name}'")
+        raise Exception(f"No existe el fichero '{excel_path.name}' en la ruta especificada '{excel.data_dir_name}'")
     if excel.empty() and private_key is None:
         raise Exception(f"El archivo '{excel_path.name}' esta vacio, csv editor no permitido")
     

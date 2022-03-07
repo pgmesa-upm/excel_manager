@@ -96,7 +96,7 @@ def hash_and_save_encrypted(ciphertext:bytes, length:int=10) -> bytes:
     register[salted_hash] = ciphertext
     with open(pd_file_path, 'wb') as file:
         pickle.dump(register, file)
-    
+
     return salted_hash
 
 if __name__ == "__main__":

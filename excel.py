@@ -2,6 +2,7 @@
 import os
 from math import isnan
 import datetime as dt
+import shutil
 import dateutil.parser as dateparser
 from pathlib import Path
 from subprocess import Popen, PIPE, run
@@ -17,6 +18,7 @@ from editor.protected_data import (
     hash_and_save_encrypted, get_encrypted, hash_sheet_ids_and_save, get_sheet_hashed_ids,
     num_iters_hashes
 )
+from editor.protected_data import pd_file_path
 
 data_dir_name = './.data'
 backup_dir = './.backup'
@@ -69,7 +71,7 @@ def check_id_value(id_value:str, sheet_n:str=None) -> dict:
     id_field = config.get('id_field')
     if id_field is None:
         raise Exception("El campo 'id_field' en .config.json esta vacio, no se ha especificado un campo identificador")
-    if empty(): return
+    if empty(): return {}
     data_types:list = config.get('data_types')
     excel_path = get_excel_path()
     excel = pd.ExcelFile(excel_path)
@@ -156,15 +158,27 @@ def _write_dict_into_wb(wb:pyxl.Workbook, sheets_dict:dict, encrypted=False):
              
 def backup():
     print("[%] Executing excel backup...")
+    not_protected = False
+    if not os.path.exists(pd_file_path):
+        not_protected = True
+        bkup = config.get('backup-not-encrypted')
+        if not bkup:
+            print("[!] Excel not encrypted, aborting backup...")
+            return
     try:
         backup_path = data_dir_path/backup_dir
         if not os.path.exists(backup_path):
             os.mkdir(backup_path)
         with open(get_excel_path(), 'rb') as file:
             content = file.read()
-        bname = _get_date(path_friendly=True)+".xlsx"
-        with open(backup_path/bname, 'wb') as file:
+        date_str = _get_date(path_friendly=True)
+        if not_protected: date_str = "NP-"+date_str
+        dir_path = backup_path/date_str
+        os.mkdir(dir_path)
+        bname = date_str+".xlsx"
+        with open(dir_path/bname, 'wb') as file:
             file.write(content)
+        shutil.copy(pd_file_path, dir_path/pd_file_path.name)
     except FileNotFoundError: pass
 
 def decrypt_excel(private_key:RSAPrivateKey):
@@ -193,6 +207,8 @@ def decrypt_excel(private_key:RSAPrivateKey):
             decrypted_sheet[header] = colum
         decrypted_sheets[sheet_name] = decrypted_sheet
     
+    if os.path.exists(pd_file_path):
+        os.remove(pd_file_path)
     wb = pyxl.load_workbook(excel_path)
     _write_dict_into_wb(wb, decrypted_sheets)
        
