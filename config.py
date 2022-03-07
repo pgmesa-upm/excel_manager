@@ -5,11 +5,11 @@ import shutil
 from typing import Any, Union
 from pathlib import Path
 
-config_dir = '.config'
+config_dir = './.config'
 config_fname = 'config.json'
 default_config_fname = 'default_config.json'
-config_file_path = Path(os.getcwd()).resolve()/config_dir/config_fname
-default_config_file_path = Path(os.getcwd()).resolve()/config_dir/default_config_fname
+config_file_path = Path(__file__).resolve().parent/config_dir/config_fname
+default_config_file_path = Path(__file__).resolve().parent/config_dir/default_config_fname
 
 
 def get(dict_key:str=None, else_return:any=None) -> Union[Any, None]:
@@ -25,4 +25,9 @@ def get(dict_key:str=None, else_return:any=None) -> Union[Any, None]:
             return else_return
     
     return info
-    
+
+def is_id_field(header:str) -> bool:
+    id_field = get('id_field')
+    if id_field is None or id_field != header:
+        return False
+    return True

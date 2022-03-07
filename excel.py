@@ -11,18 +11,27 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 
 import config
+from crypt_utilities.hashes import derive
 from crypt_utilities.asymmetric import rsa_encrypt, RSAPublicKey, RSAPrivateKey, rsa_decrypt
-from editor.protected_data import hash_and_save_encrypted, get_encrypted
+from editor.protected_data import (
+    hash_and_save_encrypted, get_encrypted, hash_sheet_ids_and_save, get_sheet_hashed_ids,
+    num_iters_hashes
+)
 
-data_dir_name = '.data'
-backup_dir = '.backup'
-data_dir_path = Path(data_dir_name).resolve()
+data_dir_name = './.data'
+backup_dir = './.backup'
+main_execution_path = Path(__file__).resolve().parent
+data_dir_path = main_execution_path/data_dir_name
 
 date_format = config.get('date_format', else_return='%d/%m/%Y')
 
 def get_excel_path() -> Path:
-    excel_path = config.get('excel_path')
-    if excel_path != None: excel_path = Path(excel_path).resolve()
+    excel_path_str = config.get('excel_path')
+    if excel_path_str != None: 
+        excel_path = Path(excel_path_str)
+        if not excel_path.is_absolute():
+            excel_path = main_execution_path/excel_path_str
+        
     return excel_path
 
 def launch() -> bool:
@@ -31,7 +40,7 @@ def launch() -> bool:
         return True
     return False
     
-def refresh_csv_sheets() -> tuple[list, list]:
+def refresh_csv_sheets() -> dict:
     print("[%] Refreshing csv sheets...")
     if empty(): return
     excel_path = get_excel_path()
@@ -55,7 +64,36 @@ def refresh_csv_sheets() -> tuple[list, list]:
 def list_csv_sheets() -> list:
     filtered = filter(lambda f: f.endswith('.csv'), os.listdir(data_dir_path))
     return list(map(lambda f: f.removesuffix('.csv'), filtered))
-    
+
+def check_id_value(id_value:str, sheet_n:str=None) -> dict:
+    id_field = config.get('id_field')
+    if id_field is None:
+        raise Exception("El campo 'id_field' en .config.json esta vacio, no se ha especificado un campo identificador")
+    if empty(): return
+    data_types:list = config.get('data_types')
+    excel_path = get_excel_path()
+    excel = pd.ExcelFile(excel_path)
+    sheet_names = excel.sheet_names; found = {}
+    dtype = None
+    if id_field in data_types:
+        dtype = data_types.get(id_field, None)
+    if dtype is not None:
+        id_value = _parse_elem(id_value, dtype)
+    for sheet_name in sheet_names:
+        if sheet_n is not None and sheet_n != sheet_name: continue
+        array:list = get_sheet_hashed_ids(sheet_name=sheet_name, decrypt_hashes=True)
+        if array is not None:
+            for index, hashed_id in enumerate(array):
+                for hash_id_val, salt in hashed_id.items():
+                    hashed_val = derive(str(id_value).encode(), salt, iterations=num_iters_hashes)
+                    if hashed_val == hash_id_val:
+                        found[sheet_name] = index + 1
+                        break
+                else:
+                    continue
+                break
+    return found
+        
 def update_excel():
     print("[%] Updating excel from csv sheets...")
     if empty(): return
@@ -173,6 +211,8 @@ def protect_sensitive_data(public_key:RSAPublicKey):
         protected_sheet = {}
         for header in csv_dict:
             colum = csv_dict[header]
+            if config.is_id_field(header):
+                hash_sheet_ids_and_save(sheet_name, colum)
             # Encriptamos datos sensibles
             if header in sfields:
                 protected_colum = []
@@ -218,12 +258,4 @@ def empty():
     return df.empty
     
 if __name__ == "__main__":
-    # update_excel()
-    # refresh_csv_sheets()
-    # from editor.encryption import load_pem_public_key, load_pem_private_key
-    # public_key = load_pem_public_key(config.get('public_key_path'))
-    # private_key = load_pem_private_key('private_key', password='Prueba'.encode())
-    # decrypt_excel(private_key)
-    # protect_sensitive_data(public_key)
-    #get_excel_sheets_as_csv()
     refresh_csv_sheets()

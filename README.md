@@ -35,6 +35,8 @@ En la carpeta .config se encuentra el fichero config.json el cual permite modifi
 
 - "orientation": "colums" o "rows". No se encuentra habilitada la opción de rows actualmente.
 
+- "id_field": String que indica el campo identificador de cada fila. Permite a un usuario saber si un identificador dado ya se encuentra registrado en el excel, para no añadirlo 2 veces
+
 - "sensitive_fields": Es una lista en la que se especifican los campos que contienen información sensible y los cuales serán encriptados (tanto en modo user como modo admin si se introducen cambios) y desencriptados (en modo admin)
 
 - "data_types": Es un objeto ({}) cuyos atributos dentro serán los campos asociados con un tipo de dato para la columna. Datos válidos -> 'str', 'str-q', 'date', 'int', 'float'. 'str-q' añade una comilla simple al valor del campo para impedir que excel lo detecte como una formula incorrectamente (-2.5/+2.5 | excel interpreta: -1 -> '-1.2/+2.5 | excel interpreta: -1.2/+2.5)
@@ -67,7 +69,7 @@ Ejemplo de config.json
 }
 ```
 
-Todo el programa depende del archivo excel  Este excel se debe tratar como una única tabla en la que cada columna debe tener un header correspondiente. No debería haber datos fuera de la tabla sin un header correspondiente o anotaciones en celdas fuera de la tabla (se debe tratar como un csv) (no se recomienda poner formulas). Además esta tabla debe empezar desde la primera celda (1,A) y no contener filas en blanco de márgenes (si se ponen estas se verán reflejadas en el editor y no se cogerán bien los headers). 
+Todo el programa depende del archivo excel  Este excel se debe tratar como una única tabla en la que cada columna debe tener un header correspondiente. No debería haber datos fuera de la tabla sin un header correspondiente o anotaciones en celdas fuera de la tabla (se debe tratar como un csv) (no se recomienda poner formulas). Además esta tabla debe empezar desde la primera celda (1,A) y no contener filas en blanco de márgenes (si se ponen estas se verán reflejadas en el editor y no se cogerán bien los headers). Se pueden tener las hojas que se quieran pero todas deberían tener los mismos headers.
 ¡¡Si no se siguen estas indicaciones puede que surja algún error en el programa y el excel se acabe escribiendo mal
 y se pierda la información!!
 El csv_editor no se podrá abrir a menos que el excel no este vacío, es decir, que contenga al menos dos filas, una con los headers de la tabla y otra con un primer dato introducido en la columna (con un solo dato en la columna vale)
@@ -126,4 +128,4 @@ Este programa utiliza una librería llamada 'crypt_utilities', desarrollada tamb
 
 Para desencriptar los campos es necesario por tanto, el fichero con clave privada y la contraseña con la que se serializó la contraseña (si es que se utilizó alguna). El fichero de acceso a la clave pública se debe especificar en el './.config/config.json' o poner en el directorio '.config' que es donde se busca por defecto.
 
-Cada celda es encriptada con la clave privada y después hasheada mediante el algoritmo PBKDF2HMAC a una longitud fija de 10 caracteres. A continuación se guardan el texto y la sal utilizada (única para cada celda) en un diccionario en el archivo '.protected_data' y se introduce el hash en la celda del excel. Esto se realiza para evitar saturar el excel con celdas de texto de gran longitud, como son los datos encriptados por RSA, y así, mantener la legibilidad.
+Cada celda es encriptada con la clave privada y después hasheada mediante el algoritmo PBKDF2HMAC a una longitud fija de 10 caracteres. A continuación se guardan el texto encriptado y el hash (única para cada celda) en un diccionario clave-valor (siendo la clave el hash) en el archivo '.protected_data' y se introduce el hash del texto encriptado en la celda del excel. Esto se realiza para evitar saturar el excel con celdas de texto de gran longitud, como son los datos encriptados por RSA, y así, mantener la legibilidad.

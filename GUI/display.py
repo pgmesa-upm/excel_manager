@@ -29,6 +29,14 @@ def showOptions(screen):
     
     return [rect1,rect2,rect3]
 
+def show_user_actions(screen):
+    posGenerator = _calcDisplayOfOption(3)
+    rect1 = _showText(screen, "Selecciona una acción", WHITE, BLACK, screenWidth/2, next(posGenerator),40, True)
+    rect2 = _showText(screen, "=> Añadir", BLACK,WHITE, screenWidth/2, next(posGenerator),40, True)
+    rect3 = _showText(screen, "=> Comprobar si 'ID' ya existe",BLACK, WHITE, screenWidth/2, next(posGenerator),40, True)
+    
+    return [rect1,rect2,rect3]
+
 def showInput(screen, order:int, width=140, height=32) -> InputBox:
     posGenerator = _calcDisplayOfOption(order)
     for _ in range(order-1):

@@ -5,9 +5,12 @@ import tkinter.messagebox as tkMessageBox
 import tkinter.filedialog as tkFileDialog
 import tkinter.font as tkFont
 import csv
+from pathlib import Path
 
+import excel
+import config
 from crypt_utilities.asymmetric import rsa_encrypt, rsa_decrypt
-from .protected_data import get_encrypted, hash_and_save_encrypted
+from .protected_data import get_encrypted, hash_and_save_encrypted, hash_sheet_ids_and_save
 
 # codigo base: https://github.com/ssebs/csveditor
 
@@ -294,9 +297,8 @@ class CSVEditor(Frame):
             mode = 'w'
         
         self.master.title("Encriptando y Guardando (puede tardar)...")
-        headers = []
-        vals = []
-        
+        headers = []; vals = []
+        ids_to_hash = {}
         for i in range(len(self.currentCells)):
             inserted_indexes = []
             z = 0
@@ -312,6 +314,12 @@ class CSVEditor(Frame):
                         inserted_indexes.append(z); z+=1
                 # Vemos si hay que encriptar
                 val = self.currentCells[i][j].get(1.0, END).strip()
+                if i != 0 and config.is_id_field(headers[z]) and val != "":
+                    sheet_name = Path(self.current_path_file).name.removesuffix(".csv")
+                    if sheet_name not in ids_to_hash:
+                        ids_to_hash[sheet_name] = [val]
+                    else:
+                        ids_to_hash[sheet_name].append(val)
                 if i == 0:
                     headers.append(val)
                 elif headers[z] in self.sensitive_fields and self.public_key is not None and val != "":
@@ -321,6 +329,16 @@ class CSVEditor(Frame):
                 z+=1
                 if i == 0 and mode == 'a': continue
                 vals.append(val);
+        if len(ids_to_hash) > 0:
+            for sheet_name, array in ids_to_hash.items():
+                for elem in array:
+                    found = excel.check_id_value(elem, sheet_n=sheet_name)
+                    if len(found) == 1:
+                        id_field = config.get("id_field")
+                        tkMessageBox.showinfo("", f"ERROR: {id_field} '{elem}' already exist in '{sheet_name}' line {found[sheet_name]}")
+                        return
+                hash_sheet_ids_and_save(sheet_name, array, override=False)
+                    
                 
         num_rows = len(self.currentCells); num_colums = len(headers)
         if mode == 'a': num_rows -= 1
