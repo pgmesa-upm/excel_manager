@@ -55,9 +55,9 @@ En la carpeta .config se encuentra el fichero config.json el cual permite modifi
 Ejemplo de config.json
 ```
 {
-    "excel_path": ".data/patients_data.xlsx",
+    "excel_path": "./.data/patients_data.xlsx",
     "admin_editor_preference": "excel", 
-    "public_key_path": ".config/public_key",
+    "public_key_path": "./.config/public_key",
     "date_format": "%d/%m/%Y",
     "orientation": "colums",
     "id_field": "NHC",
