@@ -24,10 +24,12 @@ La primera vez que se ejecute el programa se pedirá por consola una contraseña
 
     Este modo está pensado para que solo se pueda añadir información al excel, pero no se puede modificar la existente, por lo que hay que tener cuidado y estar seguro de lo que se añade es correcto, porque una vez guardado no se podrá volver a editar es información desde el modo usuario. Al pinchar en el modo usuario se abrirá SIEMPRE el csv_editor con 5 filas para añadir información (si se quiere añadir más, con guardar la información se volverán a tener las 5 filas en blanco). Aparecerán los headers definidos por los administradores y las filas en blanco para añadir nuevos datos. Puede que el proceso de encriptación de datos tarde un poco al guardar los datos (no interrumpir este proceso).
     Para ver el feedback del csv editor siempre hay que mirar el título de la ventana. En este también aparecen el número de filas que tiene el excel. En el menu se mostrarán las distintas hojas de excel que se pueden editar. Al poner un excel nuevo, este no se encriptará hasta que un administrador entre con credenciales, guarde el excel y cierre el programa. 
+![CSV editor](/assets/csv_editor.png)
 - **Modo Administrador**:
 
     Este modo permite la edición completa del excel desencriptado. Tanto desde el excel como desde el csv-editor (muy limitado actualmente este último). Primero se abrirá un explorador de archivos (puede tardar un poco en cargar), en el que se debe seleccionar la clave privada que se ha generado para el estudio, a continuación se debe introducir la contraseña con la que se serializó esta clave privada. Si las credenciales son correctas se abrirá el editor que esté como predeterminado. Si son incorrectos y sabe que la contraseña es correcta, puede que haya seleccionado el archivo que no es, por lo que para seleccionar otro archivo cierre el programa y ábralo de nuevo.
     Se ha conseguido implementar que el excel no pierda el formato al leer/escribir sobre él (no simpre se mantiene todo a la perfección, colores, negritas etc...) 
+![Encypted Excel](/assets/excel.png)
 
 [INFO]
 Siempre que se modifique algún parámetro de la configuración, se debe entrar con el modo administrador y cerrar el programa para refrescar la información (nuevos campos a encriptar o cualquier otro cambio en la configuración) antes de que cualquier usuario intente añadir nada.
