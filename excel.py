@@ -84,7 +84,7 @@ def check_id_value(id_value:str, sheet_n:str=None) -> dict:
         id_value = _parse_elem(id_value, dtype)
     for sheet_name in sheet_names:
         if sheet_n is not None and sheet_n != sheet_name: continue
-        if id_field in sfields:
+        if id_field in sfields and os.path.exists(pd_file_path):
             array:list = get_sheet_hashed_ids(sheet_name=sheet_name, decrypt_hashes=True)
             if array is not None:
                 for index, hashed_id in enumerate(array):
@@ -97,7 +97,7 @@ def check_id_value(id_value:str, sheet_n:str=None) -> dict:
                         continue
                     break
         else:
-            df = pd.read_csv(data_dir_path/(sheet_name+".csv"))
+            df = excel.parse(sheet_name)
             csv_dict = df.to_dict("list")
             if id_field in csv_dict:
                 array = csv_dict[id_field]

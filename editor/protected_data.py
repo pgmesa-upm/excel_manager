@@ -100,8 +100,8 @@ def hash_and_save_encrypted(ciphertext:bytes, length:int=10) -> bytes:
     return salted_hash
 
 if __name__ == "__main__":
-    #print(get_encrypted())
-    print(get_sheet_hashed_ids(decrypt_hashes=True))
+    print(get_encrypted())
+    #print(get_sheet_hashed_ids(decrypt_hashes=True))
     # hashed = hash_and_save_encrypted("hola".encode())
     # recovered = get_encrypted(hashed).decode()
     # print(recovered)

@@ -23,7 +23,7 @@ La primera vez que se ejecute el programa se pedirá por consola una contraseña
 - **Modo Usuario**:
 
     Este modo está pensado para que solo se pueda añadir información al excel, pero no se puede modificar la existente, por lo que hay que tener cuidado y estar seguro de lo que se añade es correcto, porque una vez guardado no se podrá volver a editar es información desde el modo usuario. Al pinchar en el modo usuario se abrirá SIEMPRE el csv_editor con 5 filas para añadir información (si se quiere añadir más, con guardar la información se volverán a tener las 5 filas en blanco). Aparecerán los headers definidos por los administradores y las filas en blanco para añadir nuevos datos. Puede que el proceso de encriptación de datos tarde un poco al guardar los datos (no interrumpir este proceso).
-    Para ver el feedback del csv editor siempre hay que mirar el título de la ventana. En este también aparecen el número de filas que tiene el excel. En el menu se mostrarán las distintas hojas de excel que se pueden editar.
+    Para ver el feedback del csv editor siempre hay que mirar el título de la ventana. En este también aparecen el número de filas que tiene el excel. En el menu se mostrarán las distintas hojas de excel que se pueden editar. Al poner un excel nuevo, este no se encriptará hasta que un administrador entre con credenciales, guarde el excel y cierre el programa. 
 - **Modo Administrador**:
 
     Este modo permite la edición completa del excel desencriptado. Tanto desde el excel como desde el csv-editor (muy limitado actualmente este último). Primero se abrirá un explorador de archivos (puede tardar un poco en cargar), en el que se debe seleccionar la clave privada que se ha generado para el estudio, a continuación se debe introducir la contraseña con la que se serializó esta clave privada. Si las credenciales son correctas se abrirá el editor que esté como predeterminado. Si son incorrectos y sabe que la contraseña es correcta, puede que haya seleccionado el archivo que no es, por lo que para seleccionar otro archivo cierre el programa y ábralo de nuevo.
@@ -68,14 +68,15 @@ Ejemplo de config.json
         "NHC": "int",
         "LAST_NAME": "str",
         "FIRST_NAME": "str",
-        "GENDER": "str",
+        "SEX": "str",
         "BIRTH_DATE": "date",
         "STUDY_DATE": "date",
         "OD_DIOPTERS": "str-q",
         "OS_DIOPTERS": "str-q",
         "VISUAL_ACUITY": "str-q"
     },
-    "hide_fields_from_users": ["STUDY_NUM", "PATIENT_NUM"]
+    "hide_fields_from_users": ["STUDY_NUM", "PATIENT_NUM"],
+    "backup-not-encrypted": false
 }
 ```
 Todo el programa depende del archivo excel. Este excel se debe tratar como una única tabla en la que cada columna debe tener un header correspondiente. No debería haber datos fuera de la tabla sin un header correspondiente o anotaciones en celdas fuera de la tabla (se debe tratar como un csv) (no se recomienda poner fórmulas). Además esta tabla debe empezar desde la primera celda (1,A) y no contener filas en blanco de márgenes (si se ponen estas se verán reflejadas en el editor y no se cogerán bien los headers). Se pueden tener las hojas que se quieran pero todas deberían tener los mismos headers.
@@ -97,10 +98,11 @@ que el excel está en modo edición (si no se activa modo edición no se detecta
 ### 2. Resumen para instalar el programa en un disco duro
 - Descargar el repositorio del programa de github en el disco
 - Poner el excel que contiene la información en la carpeta '.data/' y renombrarlo a patients_data.xlsx o actualizar el excel_path de 'config.json'
-- Ejecutar el programa y generar las contraseñas necesarias (la de inicio y el par de claves RSA si no se tiene ya alguna que se quiera usar)
-- Poner la public_key en '.config/' o especificar en config.json su ruta
 - Crear el archivo config.json (copie la info de default_config.json) y modificar lo necesario para el proyecto en cuestión
+- Ejecutar el programa y generar las contraseñas necesarias (la de inicio y el par de claves RSA si no se tiene ya alguna que se quiera usar)
+- Poner la 'public_key' en '.config/' o especificar en config.json su ruta y poner en un sitio seguro la 'private_key'
 - Ejecutar la aplicación y ver que funciona (se guardará un backup del excel sin encriptar, bórrelo en caso de que no quiera conservar ese fichero sin la encriptación [solo se hace la primera vez que se abre el excel antes de encriptar, si ya está encriptado se hace siempre el backup del excel encriptado]. Ponga a 'false' la variable 'backup-not-encrypted' en el fichero de configuración para evitar que se relize el backup del excel sin encriptar)
+- Entrar con el modo administrador, guardar el excel y salir del programa para que se encripten todos los campos especificados en la configuración
 
 ### 3. Errores y como solucionarlos
 - 'IndexError: At least one sheet must be visible' se debe a que el excel tiene un formato incorrecto al

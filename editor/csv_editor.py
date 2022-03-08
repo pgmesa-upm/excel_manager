@@ -1,16 +1,22 @@
 # pylint: disable=C0103,C0111,W0614,W0401,C0200,C0325
+
+import os
+import csv
+from pathlib import Path
+
 from tkinter import *
 from tkinter import ttk
 import tkinter.messagebox as tkMessageBox
 import tkinter.filedialog as tkFileDialog
 import tkinter.font as tkFont
-import csv
-from pathlib import Path
 
 import excel
 import config
 from crypt_utilities.asymmetric import rsa_encrypt, rsa_decrypt
-from .protected_data import get_encrypted, hash_and_save_encrypted, hash_sheet_ids_and_save
+from .protected_data import (
+    get_encrypted, hash_and_save_encrypted, hash_sheet_ids_and_save,
+    pd_file_path
+)
 
 # codigo base: https://github.com/ssebs/csveditor
 
@@ -339,7 +345,7 @@ class CSVEditor(Frame):
                         return
                 ov = True
                 if self.private_key is None: ov = False
-                if id_field in self.sensitive_fields:
+                if id_field in self.sensitive_fields and os.path.exists(pd_file_path):
                     hash_sheet_ids_and_save(sheet_name, array, override=ov)
                     
                 
