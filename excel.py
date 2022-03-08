@@ -101,6 +101,9 @@ def check_id_value(id_value:str, sheet_n:str=None) -> dict:
             csv_dict = df.to_dict("list")
             if id_field in csv_dict:
                 array = csv_dict[id_field]
+                if dtype is not None:
+                    for i, a in enumerate(array):
+                        array[i] = _parse_elem(a, dtype)
                 if id_value in array:
                     found[sheet_name] = array.index(id_value) + 1
                     break

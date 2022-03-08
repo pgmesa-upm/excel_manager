@@ -303,7 +303,7 @@ class CSVEditor(Frame):
             mode = 'w'
         
         self.master.title("Encriptando y Guardando (puede tardar)...")
-        headers = []; vals = []
+        headers = []; vals = []; id_field = config.get("id_field")
         ids_to_hash = {}
         for i in range(len(self.currentCells)):
             inserted_indexes = []
@@ -322,6 +322,10 @@ class CSVEditor(Frame):
                 val = self.currentCells[i][j].get(1.0, END).strip()
                 if i != 0 and config.is_id_field(headers[z]) and val != "":
                     sheet_name = Path(self.current_path_file).name.removesuffix(".csv")
+                    found = excel.check_id_value(val, sheet_n=sheet_name)
+                    if len(found) != 0:
+                        tkMessageBox.showinfo("", f"ERROR: {id_field} '{val}' already exist in '{sheet_name}' line {found[sheet_name]}")
+                        return
                     if sheet_name not in ids_to_hash:
                         ids_to_hash[sheet_name] = [val]
                     else:
@@ -335,19 +339,12 @@ class CSVEditor(Frame):
                 z+=1
                 if i == 0 and mode == 'a': continue
                 vals.append(val);
-        id_field = config.get("id_field")
         if len(ids_to_hash) > 0:
             for sheet_name, array in ids_to_hash.items():
-                for elem in array:
-                    found = excel.check_id_value(elem, sheet_n=sheet_name)
-                    if len(found) == 1:
-                        tkMessageBox.showinfo("", f"ERROR: {id_field} '{elem}' already exist in '{sheet_name}' line {found[sheet_name]}")
-                        return
                 ov = True
                 if self.private_key is None: ov = False
                 if id_field in self.sensitive_fields and os.path.exists(pd_file_path):
-                    hash_sheet_ids_and_save(sheet_name, array, override=ov)
-                    
+                    hash_sheet_ids_and_save(sheet_name, array, override=ov)           
                 
         num_rows = len(self.currentCells); num_colums = len(headers)
         if mode == 'a': num_rows -= 1
