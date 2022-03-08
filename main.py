@@ -66,7 +66,7 @@ def main():
     outcome = views.login()
     while not views._close:
         if outcome == 0:
-            try:
+            #try:
                 mode = views.select_mode()
                 if mode == views.USER_MODE:
                     while True:
@@ -83,10 +83,10 @@ def main():
                         views.start_editor(private_key=private_key)
                 elif mode is None:
                     views._close = True
-            except PermissionError:
-                views.error("PERMISSION ERROR: El excel ya estaba abierto o siendo usado por un tercero")
-            except Exception as err:
-                views.error(str(err))
+            # except PermissionError:
+            #     views.error("PERMISSION ERROR: El excel ya estaba abierto o siendo usado por un tercero")
+            # except Exception as err:
+            #     views.error(str(err))
         else:
             views._close = True
     views.close()
@@ -106,14 +106,14 @@ def generate_rsa_keys():
     print("[%] Remember to don't leave the private_key file in the project")
 
 if __name__ == "__main__":
-    try:
+    #try:
         if "--gen-rsa-key-pair" in sys.argv:
             generate_rsa_keys()
         else:
             main()
-    except KeyboardInterrupt:
-        print("[%] Exiting...")
-        exit(1)
-    except Exception as err:
-        print(f"[!] Error: {err}")
-        exit(1)
+    # except KeyboardInterrupt:
+    #     print("[%] Exiting...")
+    #     exit(1)
+    # except Exception as err:
+    #     print(f"[!] Error: {err}")
+    #     exit(1)

@@ -4,7 +4,7 @@
     "public_key_path": "./.config/public_key",
     "date_format": "%d/%m/%Y",
     "orientation": "colums",
-    "id_field": "",
+    "id_field": null,
     "sensitive_fields": [],
     "data_types": {},
     "hide_fields_from_users": [],

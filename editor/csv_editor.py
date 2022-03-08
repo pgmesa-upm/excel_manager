@@ -184,7 +184,7 @@ class CSVEditor(Frame):
         rows = []
 
         # get array size & get contents of rows
-        with open(filepath, "r") as csvfile:
+        with open(filepath, "r", encoding="utf-8") as csvfile:
             rd_generator = csv.reader(csvfile, delimiter=",", quotechar='"')
             rd = []
             for row in rd_generator: rd.append(row)
@@ -329,17 +329,18 @@ class CSVEditor(Frame):
                 z+=1
                 if i == 0 and mode == 'a': continue
                 vals.append(val);
+        id_field = config.get("id_field")
         if len(ids_to_hash) > 0:
             for sheet_name, array in ids_to_hash.items():
                 for elem in array:
                     found = excel.check_id_value(elem, sheet_n=sheet_name)
                     if len(found) == 1:
-                        id_field = config.get("id_field")
                         tkMessageBox.showinfo("", f"ERROR: {id_field} '{elem}' already exist in '{sheet_name}' line {found[sheet_name]}")
                         return
                 ov = True
                 if self.private_key is None: ov = False
-                hash_sheet_ids_and_save(sheet_name, array, override=ov)
+                if id_field in self.sensitive_fields:
+                    hash_sheet_ids_and_save(sheet_name, array, override=ov)
                     
                 
         num_rows = len(self.currentCells); num_colums = len(headers)

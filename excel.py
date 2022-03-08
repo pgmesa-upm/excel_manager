@@ -69,6 +69,7 @@ def list_csv_sheets() -> list:
 
 def check_id_value(id_value:str, sheet_n:str=None) -> dict:
     id_field = config.get('id_field')
+    sfields:list = config.get('sensitive_fields')
     if id_field is None:
         raise Exception("El campo 'id_field' en .config.json esta vacio, no se ha especificado un campo identificador")
     if empty(): return {}
@@ -83,17 +84,26 @@ def check_id_value(id_value:str, sheet_n:str=None) -> dict:
         id_value = _parse_elem(id_value, dtype)
     for sheet_name in sheet_names:
         if sheet_n is not None and sheet_n != sheet_name: continue
-        array:list = get_sheet_hashed_ids(sheet_name=sheet_name, decrypt_hashes=True)
-        if array is not None:
-            for index, hashed_id in enumerate(array):
-                for hash_id_val, salt in hashed_id.items():
-                    hashed_val = derive(str(id_value).encode(), salt, iterations=num_iters_hashes)
-                    if hashed_val == hash_id_val:
-                        found[sheet_name] = index + 1
-                        break
-                else:
-                    continue
-                break
+        if id_field in sfields:
+            array:list = get_sheet_hashed_ids(sheet_name=sheet_name, decrypt_hashes=True)
+            if array is not None:
+                for index, hashed_id in enumerate(array):
+                    for hash_id_val, salt in hashed_id.items():
+                        hashed_val = derive(str(id_value).encode(), salt, iterations=num_iters_hashes)
+                        if hashed_val == hash_id_val:
+                            found[sheet_name] = index + 1
+                            break
+                    else:
+                        continue
+                    break
+        else:
+            df = pd.read_csv(data_dir_path/(sheet_name+".csv"))
+            csv_dict = df.to_dict("list")
+            if id_field in csv_dict:
+                array = csv_dict[id_field]
+                if id_value in array:
+                    found[sheet_name] = array.index(id_value) + 1
+                    break
     return found
         
 def update_excel():
@@ -227,10 +237,10 @@ def protect_sensitive_data(public_key:RSAPublicKey):
         protected_sheet = {}
         for header in csv_dict:
             colum = csv_dict[header]
-            if config.is_id_field(header):
-                hash_sheet_ids_and_save(sheet_name, colum)
             # Encriptamos datos sensibles
             if header in sfields:
+                if config.is_id_field(header):
+                    hash_sheet_ids_and_save(sheet_name, colum)
                 protected_colum = []
                 for elem in colum:
                     if isempty(elem): 

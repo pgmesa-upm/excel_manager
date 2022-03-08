@@ -20,14 +20,16 @@ Al ejecutar el programa se abrirán: una terminal por donde aparecen los logs de
 #### Generación de Claves y Credenciales
 La primera vez que se ejecute el programa se pedirá por consola una contraseña con la que se restringirá el accesso a todos aquellos que no deban usar el programa (el programa utiliza esta contraseña internamente también para otras finalidades). En caso que no se encuentre la clave pública en el sitio especificado en la configuración '.config.json', se le preguntará si quiere generar un nuevo par de claves RSA en esa ubicación. Recuerde guardar la clave privada 'private_key' en un lugar seguro (esta clave privada es lo que distingue a un administrador de un usuario). 
 #### Niveles de Uso
-- Modo Usuario:
+- **Modo Usuario**:
+
     Este modo está pensado para que solo se pueda añadir información al excel, pero no se puede modificar la existente, por lo que hay que tener cuidado y estar seguro de lo que se añade es correcto, porque una vez guardado no se podrá volver a editar es información desde el modo usuario. Al pinchar en el modo usuario se abrirá SIEMPRE el csv_editor con 5 filas para añadir información (si se quiere añadir más, con guardar la información se volverán a tener las 5 filas en blanco). Aparecerán los headers definidos por los administradores y las filas en blanco para añadir nuevos datos. Puede que el proceso de encriptación de datos tarde un poco al guardar los datos (no interrumpir este proceso).
     Para ver el feedback del csv editor siempre hay que mirar el título de la ventana. En este también aparecen el número de filas que tiene el excel. En el menu se mostrarán las distintas hojas de excel que se pueden editar.
-- Modo Administrador:
+- **Modo Administrador**:
+
     Este modo permite la edición completa del excel desencriptado. Tanto desde el excel como desde el csv-editor (muy limitado actualmente este último). Primero se abrirá un explorador de archivos (puede tardar un poco en cargar), en el que se debe seleccionar la clave privada que se ha generado para el estudio, a continuación se debe introducir la contraseña con la que se serializó esta clave privada. Si las credenciales son correctas se abrirá el editor que esté como predeterminado. Si son incorrectos y sabe que la contraseña es correcta, puede que haya seleccionado el archivo que no es, por lo que para seleccionar otro archivo cierre el programa y ábralo de nuevo.
     Se ha conseguido implementar que el excel no pierda el formato al leer/escribir sobre él (no simpre se mantiene todo a la perfección, colores, negritas etc...) 
 
-Todas las veces que se edite tanto en modo usuario como en modo admin, se guardará una copia de backup del excel antes de la edición, en la carpeta '.data/.backup' con la fecha y hora de la edición de dicho archivo. Por tanto, la primera vez que se encripte, primero se guardará tal y como estaba, por lo que debería eliminarse manualmente este primer archivo ya que contiene los datos sin desencriptar. Esto se hace así por si ocurre algún fallo inesperado, que no se pierda la información del excel. Los directorios de backup de archivos sin encriptar aparecerán con un 'NP-' al inicio de su nombre ('not-protected'). Si no se quiere que se haga backup de los excel con datos sin encriptar se debe dajar a 'false' el campo 'backup-not-encrypted' en el fichero de configuración.
+Todas las veces que se edite tanto en modo usuario como en modo admin, se guardará una copia de backup del excel antes de la edición, en la carpeta '.data/.backup' con la fecha y hora de la edición de dicho archivo. Por tanto, la primera vez que se encripte, primero se guardará tal y como estaba, por lo que debería eliminarse manualmente este primer archivo ya que contiene los datos sin desencriptar. Esto se hace así por si ocurre algún fallo inesperado, que no se pierda la información del archivo. Los directorios de backup de archivos sin encriptar aparecerán con un 'NP-' al inicio de su nombre ('not-protected'). Si no se quiere que se haga backup de los excel con datos sin encriptar se debe dajar a 'false' el campo 'backup-not-encrypted' en el fichero de configuración.
 
 En la carpeta .config se encuentra el fichero config.json el cual permite modificar algunos parámetros del script:
 - "excel_path": path donde se encontrara el archivo por defecto '.data/patients_data.xlsx'
@@ -48,7 +50,7 @@ En la carpeta .config se encuentra el fichero config.json el cual permite modifi
 
 - "hide_fields_from_users": Es una lista. Los campos que se introduzcan aquí, no apareceran en el csv editor cuando un usuario vaya a introducir información nueva (luego los admin se ocuparán de rellenar esa información)
 
-- "backup-not-encrypted": 
+- "backup-not-encrypted": Bool. Permite o evita que se hagan backups de excels no encriptados
 
 Ejemplo de config.json
 ```
@@ -92,16 +94,13 @@ Excel te avisa luego si quieres que lo interprete como numero o dejarlo así. Si
 No cerrar el programa con el excel abierto (el programa de todas formas intentara impedir su cierre si detecta
 que el excel está en modo edición (si no se activa modo edición no se detectará como que se está editando y se podrá cerrar el programa impidiendo encriptar la información sensible))
 
-Todo lo almacenado en '.data/.protected_data' queda guardado y aunque se elimine el paciente la información seguirá ahí. Está hecho para permitir que las versiones de backup sigan teniendo acceso a la info encriptada de las versiones pasadas.
-
 ### 2. Resumen para instalar el programa en un disco duro
 - Descargar el repositorio del programa de github en el disco
 - Poner el excel que contiene la información en la carpeta '.data/' y renombrarlo a patients_data.xlsx o actualizar el excel_path de 'config.json'
+- Ejecutar el programa y generar las contraseñas necesarias (la de inicio y el par de claves RSA si no se tiene ya alguna que se quiera usar)
 - Poner la public_key en '.config/' o especificar en config.json su ruta
-- Crear el archivo config.json (copie la info de default_config.json) y modificar lo necesario para el proyecto
-    en cuestión
-- Ejecutar la aplicación y ver que funciona (se guardará un backup del excel sin encriptar, bórrelo en caso
-    de que no quiera conservar ese fichero sin la encriptación [solo se hace la primera vez que se abre el excel antes de encriptar, si ya está encriptado se hace siempre el backup del excel encriptado])
+- Crear el archivo config.json (copie la info de default_config.json) y modificar lo necesario para el proyecto en cuestión
+- Ejecutar la aplicación y ver que funciona (se guardará un backup del excel sin encriptar, bórrelo en caso de que no quiera conservar ese fichero sin la encriptación [solo se hace la primera vez que se abre el excel antes de encriptar, si ya está encriptado se hace siempre el backup del excel encriptado]. Ponga a 'false' la variable 'backup-not-encrypted' en el fichero de configuración para evitar que se relize el backup del excel sin encriptar)
 
 ### 3. Errores y como solucionarlos
 - 'IndexError: At least one sheet must be visible' se debe a que el excel tiene un formato incorrecto al
@@ -140,4 +139,4 @@ Para desencriptar los campos es necesario por tanto, el fichero con clave privad
 
 Cada celda es encriptada con la clave privada y después hasheada mediante el algoritmo PBKDF2HMAC a una longitud fija de 10 caracteres. A continuación se guardan el texto encriptado y el hash (única para cada celda) en un diccionario clave-valor (siendo la clave el hash) en el archivo '.protected_data' y se introduce el hash del texto encriptado en la celda del excel. Esto se realiza para evitar saturar el excel con celdas de texto de gran longitud, como son los datos encriptados por RSA, y así, mantener la legibilidad.
 
-Aquellos valores que se encuentren en la columna cuyo header se haya especificado que sea el 'id_field', serán hasheados con el mismo algoritmo de antes y encriptados de forma simétrica con la clave de acceso al programa, de tal forma que sea posible saber sin conocer la clave privada (sí se necesita la clave de acceso al programa), si dado un posible valor para un identificador, este se encuentra en el excel (encriptado o no). Por ejemplo, sirve para que un usuario que esté añadiendo nuevos pacientes, sepa si ya ha sido añadido al excel o no antes, utilizando su número de historia como identificador. Estos sabrán a que fila del excel corresponde ese paciente y por tanto tendrán acceso a la información no encriptada (numero de paciente que es, su género, la agudeza visual...).
+Aquellos valores que se encuentren en la columna cuyo header se haya especificado que sea el 'id_field', serán hasheados con el mismo algoritmo de antes y encriptados de forma simétrica con la clave de acceso al programa, de tal forma que sea posible saber sin conocer la clave privada (sí se necesita la clave de acceso al programa), si dado un posible valor para un identificador, este se encuentra en el excel. Esto solo se realizará si el identificador seleccionado se encuentra en la lista de datos sensibles a encriptar. Por ejemplo, sirve para que un usuario que esté añadiendo nuevos pacientes, sepa si el paciente que va a añadir, ya ha sido añadido al excel o no antes, utilizando su número de historia como identificador. Estos sabrán a que fila del excel corresponde ese paciente y por tanto tendrán acceso a la información no encriptada (número de paciente que es, su género, la agudeza visual...) y por tanto relacionar en el dataset quien es el paciente y saber en que carpeta debe exportar sus imágenes.
