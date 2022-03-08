@@ -1,15 +1,15 @@
 
 # EXCEL MANAGER (V-3.0) (solo compatible con Windows)
 
-### Autor
+## Autor
 Pablo García Mesa
 - pgmesa.sm@gmail.com
 - https://github.com/pgmesa-upm/excel_manager
 
-### 0. Descripción
+## 0. Descripción
 Programa para el manejo del excel del estudio de esclerosis múltiple, llevado a cabo por la UPM en colaboración con el oftalmológico del Gregorio Marañón
 
-### 1. Modo de uso
+## 1. Modo de uso
 El programa necesita Python (>=3.9) para ejecutarse, por lo que en el disco duro debe haber una carpeta '.python' que contenga el python ('.python/Python39') necesario con los módulos requeridos para ejecutar el programa. 
 
 El programa se abre ejecutando el archivo '.bat' que se encuentra en la carpeta root del programa. Este necesita de la carpeta'.python' antes mencionada. En caso de no existir, se puede ejecutar el programa con un intérprete de python en el ordenador en cuestión que tenga todos los módulos requeridos instalados (mirar requirements.txt)
@@ -17,9 +17,9 @@ El programa se abre ejecutando el archivo '.bat' que se encuentra en la carpeta 
 pip install -r requirements.txt
 ```
 Al ejecutar el programa se abrirán: una terminal por donde aparecen los logs del programa y por donde se deben realizar unas primeras configuraciones la primera vez que se ejecuta (generación de claves y credenciales para el programa) (no cerrar nunca directamente mientras la interfaz del programa siga abierta) y una interfaz que en la que el usuario puede elegir en que modo registrarse.
-#### Generación de Claves y Credenciales
+### 1.1. Generación de Claves y Credenciales
 La primera vez que se ejecute el programa se pedirá por consola una contraseña con la que se restringirá el accesso a todos aquellos que no deban usar el programa (el programa utiliza esta contraseña internamente también para otras finalidades). En caso que no se encuentre la clave pública en el sitio especificado en la configuración '.config.json', se le preguntará si quiere generar un nuevo par de claves RSA en esa ubicación. Recuerde guardar la clave privada 'private_key' en un lugar seguro (esta clave privada es lo que distingue a un administrador de un usuario). 
-#### Niveles de Uso
+### 1.2. Niveles de Uso
 - **Modo Usuario**:
 
     Este modo está pensado para que solo se pueda añadir información al excel, pero no se puede modificar la existente, por lo que hay que tener cuidado y estar seguro de lo que se añade es correcto, porque una vez guardado no se podrá volver a editar es información desde el modo usuario. Al pinchar en el modo usuario se abrirá SIEMPRE el csv_editor con 5 filas para añadir información (si se quiere añadir más, con guardar la información se volverán a tener las 5 filas en blanco). Aparecerán los headers definidos por los administradores y las filas en blanco para añadir nuevos datos. Puede que el proceso de encriptación de datos tarde un poco al guardar los datos (no interrumpir este proceso).
@@ -38,6 +38,7 @@ Todas las veces que se edite tanto en modo usuario como en modo admin, se guarda
 
 Para recuperar un backup, eliminar el excel actual y el archivo .protected_data y copiar los archivos del directorio a recuperar en la carpeta './data'. Por último, renombre el archivo excel con el nombre que haya especificado en la configuración
 
+## 2. Fichero de Configuración
 En la carpeta .config se encuentra el fichero config.json el cual permite modificar algunos parámetros del script:
 - "excel_path": path donde se encontrara el archivo por defecto '.data/patients_data.xlsx'
 
@@ -86,6 +87,7 @@ Ejemplo de config.json
     "backup-not-encrypted": false
 }
 ```
+## 3. Formato del Excel
 Todo el programa depende del archivo excel. Este excel se debe tratar como una única tabla en la que cada columna debe tener un header correspondiente. No debería haber datos fuera de la tabla sin un header correspondiente o anotaciones en celdas fuera de la tabla (se debe tratar como un csv) (no se recomienda poner fórmulas). Además esta tabla debe empezar desde la primera celda (1,A) y no contener filas en blanco de márgenes (si se ponen estas se verán reflejadas en el editor y no se cogerán bien los headers). Se pueden tener las hojas que se quieran pero todas deberían tener los mismos headers.
 ¡¡Si no se siguen estas indicaciones puede que surja algún error en el programa y el excel se acabe escribiendo mal
 y se pierda la información!! (Para evitar esto, es por lo que el programa realiza de forma automática el backup antes de tocar el archivo)
@@ -102,7 +104,7 @@ Excel te avisa luego si quieres que lo interprete como numero o dejarlo así. Si
 No cerrar el programa con el excel abierto (el programa de todas formas intentara impedir su cierre si detecta
 que el excel está en modo edición (si no se activa modo edición no se detectará como que se está editando y se podrá cerrar el programa impidiendo encriptar la información sensible))
 
-### 2. Resumen para instalar el programa en un disco duro
+## 4. Resumen para instalar el programa en un disco duro
 - Descargar el repositorio del programa de github en el disco
 - Poner el excel que contiene la información en la carpeta '.data/' y renombrarlo a patients_data.xlsx o actualizar el excel_path de 'config.json'
 - Crear el archivo config.json (copie la info de default_config.json) y modificar lo necesario para el proyecto en cuestión
@@ -111,12 +113,12 @@ que el excel está en modo edición (si no se activa modo edición no se detecta
 - Ejecutar la aplicación y ver que funciona (se guardará un backup del excel sin encriptar, bórrelo en caso de que no quiera conservar ese fichero sin la encriptación [solo se hace la primera vez que se abre el excel antes de encriptar, si ya está encriptado se hace siempre el backup del excel encriptado]. Ponga a 'false' la variable 'backup-not-encrypted' en el fichero de configuración para evitar que se relize el backup del excel sin encriptar)
 - Entrar con el modo administrador, guardar el excel y salir del programa para que se encripten todos los campos especificados en la configuración
 
-### 3. Errores y como solucionarlos
+## 5. Errores y como solucionarlos
 - 'IndexError: At least one sheet must be visible' se debe a que el excel tiene un formato incorrecto al
     mencionado anteriormente y ha habido un problema al querer actualizar las hojas csv en el excel. Ahora el fichero, como puedes comprobar, no se abre, debido a que se ha escrito mal sobre él y no es reconocido por excel. Este es un caso de pérdida de informacion del documento, pero debería haber una copia de seguridad en '.data/.backups' del archivo perdido. De todas formas, siempre se recomienda la primera vez que se usa el programa, guardar una copia del archivo original por si la primera vez no funciona y hay algo del excel que no tiene el formato correcto. Una vez funciona la primera vez, es seguro que funcionará de aquí en adelante si solo se modifica el excel a través de la aplicación. 
 - Puede que usando el csv editor, si se tarda mucho en guardar los cambios, el disco duro se duerma y al querer guardar los cambios se produzca un error. Para solucionarlo, si se ve la luz del disco apagada, hay que meterse desde el explorador de archivos en alguna de sus carpetas para despertarlo. Una vez despertado (luz azul encendida) ya se puede proceder a guardar los cambios con normalidad.
 
-### 4. CSV-editor
+## 6. CSV-editor
 En el menú se mostrarán las distintas hojas de excel que se pueden editar y algunas otras funcionalidades (por ahora solo guardar). Los atajos de teclado como ctrl-s, ctrl-v y demás, están implementados.
 Siempre mirar al título de la ventana del editor para obtener feedback del programa. 
 - Para el modo usuario:
@@ -124,24 +126,24 @@ Siempre mirar al título de la ventana del editor para obtener feedback del prog
 - Para el modo administrador:
     Es muy limitado actualmente, aunque realiza todas las funciones de forma correcta, se puede editar con él confiando en que todo se almacenará y encriptará bien. El problema es la interfaz, que tiene bugs y no es cómodo trabajar con ella: Se descuadran las tablas al cambiar entre hojas y no se pueden añadir nuevas filas a la tabla para añadir nuevos campos. 
 
-### 5. Futuros cambios y modificaciones sugeridos a arreglar
-#### CSV-editor:
+## 7. Futuros cambios y modificaciones sugeridos a arreglar
+### CSV-editor:
 - Corregir bug al cambiar entre hojas csv con distinto tamaño
 - El canvas se ve desbordado por las celdas en el modo administrador
 - La rueda del ratón no funciona para moverse por la tabla 
 - Mejora de las scrollbar en general con los atajos de teclado
-#### Config:
+### Configuración:
 - Habilitar las opciones que actualmente no están funcionales ('orientation')
 
-### 6. Comandos adicionales:
+## 8. Comandos adicionales:
 Si ejecuta:
 ```
 python main.py --gen-rsa-key-pair
 ```
 Se volverán a generar las claves pública y privada donde esté indicdo en el archivo de configuración.
 
-## Lectura complementaria sobre el funcionamiento del programa (información no necesaria para utilizar el programa)
-### 6. Método de encriptación de los datos
+# Lectura complementaria sobre el funcionamiento del programa (información no necesaria para utilizar el programa)
+## 9. Método de encriptación de los datos
 Este programa utiliza una librería llamada 'crypt_utilities', desarrollada también por el autor de este programa, que se basa en la conocida libreria criptográfica de 'cryptography'. Este programa utiliza encriptación asimétrica RSA (clave pública:encripta - clave privada:desencripta).
 
 Para desencriptar los campos es necesario por tanto, el fichero con clave privada y la contraseña con la que se serializó la contraseña (si es que se utilizó alguna). El fichero de acceso a la clave pública se debe especificar en el './.config/config.json' o poner en el directorio '.config' que es donde se busca por defecto.
