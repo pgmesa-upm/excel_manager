@@ -123,19 +123,28 @@ def update_excel():
             
 def _parse_elem(elem:str, dtype:str) -> any:
     try:
-        # Los numeros mejor no convertirlos
         if dtype == 'int':
-            return int(elem)
+            elem:float = float(elem)
+            if elem.is_integer():
+                return int(elem)
         elif dtype == 'float':
             return float(elem)
         elif dtype == 'str-q':
             if not str(elem).startswith("'"):
                 return "'"+str(elem)
         elif dtype == 'date':
-            date = dateparser.parse(elem)
+            raw_date_str = elem.split(" ")[0]
+            if "/" in raw_date_str: sep = "/"
+            elif "-" in raw_date_str: sep = "-"
+            first_pos = raw_date_str.split(sep)[0]
+            if len(first_pos) == 4:
+                date = dt.datetime.strptime(raw_date_str, f"%Y{sep}%m{sep}%d")
+            else:
+                date = dt.datetime.strptime(raw_date_str, f"%d{sep}%m{sep}%Y")
             date_str = str(date.strftime(date_format))
             return str(date_str)
-    except: pass
+    except Exception as err:
+        pass
     return str(elem) 
 
 def isempty(elem:any) -> bool:

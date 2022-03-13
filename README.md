@@ -46,7 +46,7 @@ En la carpeta .config se encuentra el fichero config.json el cual permite modifi
 
 - "public_key_path": Permite definir la ruta relativa (tomando la carpeta del programa como base) o ruta absoluta del fichero que contiene la clave pública. Se recomienda no tocar este parámetro y dejar siempre el fichero de la clave publica en la ruta predeterminada '.config/public_key' para que otros usuarios lo puedan utilizar también.
 
-- "date_format": Formato en el que guardar las fechas en el excel. "%d/%m/%Y" por defecto
+- "date_format": Formato en el que guardar las fechas en el excel. "%d/%m/%Y" por defecto. El programa transforma la fecha introducida en el formato especificado en esta variable. Para ello interpreta la fecha introducida a través del editor. Esta debe ser de la forma 14-02-1991 o 1991-02-14, es decir asume que el primero es un año si tiene 4 digitos y en caso de tener menos interpreta que es el día, por lo que se deben introducir al programa solo fechas de la forma %Y/%m/%d o %d/%m/%Y (pudiendo usarse "-" o "/" para separar). Estas luego se podrán transformar al tipo deseado, especificándolo en esta variable (%m/%d/%Y por ejemplo). No usar nomenclatura americana, en la que el mes se pone en la primera posición, al introducir las fechas por el editor puesto que el programa puede interpretarlo erróneamente en casos en los que el día sea <= 12 (03/05/1991 , mes 5? o día 5? -> el programa interpreta mes 5 y día 3 del año 1991)
 
 - "orientation": "colums" o "rows". No se encuentra habilitada la opción de rows actualmente.
 
@@ -54,7 +54,7 @@ En la carpeta .config se encuentra el fichero config.json el cual permite modifi
 
 - "sensitive_fields": Es una lista en la que se especifican los campos que contienen información sensible y los cuales serán encriptados (tanto en modo user como modo admin si se introducen cambios) y desencriptados (en modo admin)
 
-- "data_types": Es un objeto JSON ({}) cuyos atributos dentro serán los campos asociados con un tipo de dato para la columna. Datos válidos -> 'str', 'str-q', 'date', 'int', 'float'. 'str-q' añade una comilla simple al valor del campo para impedir que excel lo detecte como una formula incorrectamente (-2.5/+2.5 | excel interpreta: -1 -> '-1.2/+2.5 | excel interpreta: -1.2/+2.5)
+- "data_types": Es un objeto JSON ({}) cuyos atributos dentro serán los campos asociados con un tipo de dato para la columna. Datos válidos -> 'str', 'str-q', 'date', 'int', 'float'. 'str-q' añade una comilla simple al valor del campo para impedir que excel lo detecte como una formula incorrectamente (-2.5/+2.5 | excel interpreta: -1 -> '-1.2/+2.5 | excel interpreta: -1.2/+2.5).
 
 - "hide_fields_from_users": Es una lista. Los campos que se introduzcan aquí, no apareceran en el csv editor cuando un usuario vaya a introducir información nueva (luego los admin se ocuparán de rellenar esa información)
 
